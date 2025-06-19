@@ -33,6 +33,7 @@ use directories::ProjectDirs;
 
 use porter_preview::PreviewKeyState;
 use porter_preview::PreviewRenderer;
+use porter_preview::AudioPlayer;
 
 use porter_utils::StringCaseExt;
 
@@ -138,6 +139,7 @@ impl PorterMain {
                 }
 
                 self.previewer = Some(PreviewRenderer::new());
+                self.audio_player = Some(AudioPlayer::new()); // TODO: Load it when we really need?
                 self.request_preview_asset();
 
                 return Command::batch([
@@ -415,7 +417,7 @@ impl PorterMain {
         }
 
         if let Some(previewer) = &mut self.previewer {
-            if let Some(asset) = asset {
+            if let Some(asset) = asset.clone() {
                 match asset {
                     PorterPreviewAsset::Model(name, model, materials) => {
                         previewer.set_preview(name, (model, materials));
@@ -426,7 +428,20 @@ impl PorterMain {
                     PorterPreviewAsset::Material(name, images) => {
                         previewer.set_preview(name, images);
                     }
+                    _ => {}
                 }
+            }
+        }
+
+        if let Some(asset) = asset {
+            match asset {
+                PorterPreviewAsset::Audio(name, audio) => {
+                    if let Some(audio_player) = &mut self.audio_player {
+                        audio_player.set_preview(name, audio);
+                    }
+                    return Command::none();
+                }
+                _ => {}
             }
         }
 
@@ -451,6 +466,7 @@ impl PorterMain {
 
     pub fn on_close_preview(&mut self) -> Command<Message> {
         self.previewer = None;
+        self.audio_player = None;
 
         Command::none()
     }
@@ -719,7 +735,7 @@ impl PorterMain {
     }
 
     pub fn on_donate(&mut self) -> Command<Message> {
-        crate::open_url(PORTER_DONATE_URL);
+        // crate::open_url(PORTER_DONATE_URL);
 
         Command::none()
     }
@@ -844,6 +860,62 @@ impl PorterMain {
     pub fn on_column_drag_end(&mut self, index: usize) -> Command<Message> {
         if let Some(column) = self.columns.get_mut(index) {
             column.width = column.width.clamp(COLUMN_MIN, COLUMN_MAX);
+        }
+
+        Command::none()
+    }
+
+    pub fn on_tick(&mut self) -> Command<Message> {
+        // Audio player
+        if let Some(audio_player) = &self.audio_player {
+            if !self.audio_slider_drag && audio_player.is_playing() {
+                self.audio_current_time = audio_player.current_time();
+
+                // TODO: We only need to set it once when playing a new audio
+                if let Some(total_duration) = audio_player.total_duration() {
+                    self.audio_total_duration = total_duration;
+                }
+
+                if let Some(current_pos) = audio_player.pos() {
+                    self.audio_slider_pos = current_pos as f32;
+                }
+            }
+        }
+
+        Command::none()
+    }
+
+    pub fn on_audio_slider_changed(&mut self, pos: f32) -> Command<Message> {
+        self.audio_slider_drag = true;
+        self.audio_slider_pos = pos;
+
+        Command::none()
+    }
+
+    pub fn on_seek_audio(&mut self) -> Command<Message> {
+        self.audio_slider_drag = false;
+
+        if let Some(audio_player) = &self.audio_player {
+            if audio_player.has_audio() {
+                audio_player.seek(self.audio_slider_pos / self.audio_slider_length).unwrap();
+            }
+        }
+
+        Command::none()
+    }
+
+    pub fn on_toggle_playback(&mut self) -> Command<Message> {
+        if let Some(audio_player) = &self.audio_player {
+            if audio_player.has_audio() {
+                self.audio_is_playing = audio_player.is_playing();
+                if self.audio_is_playing {
+                    self.audio_player_state = String::from("Paused");
+                    audio_player.pause();
+                } else {
+                    self.audio_player_state = String::from("Playing");
+                    audio_player.play();
+                }
+            }
         }
 
         Command::none()

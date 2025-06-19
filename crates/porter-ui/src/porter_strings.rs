@@ -1,7 +1,7 @@
 /// Program copyright date string.
-pub const PORTER_COPYRIGHT: &str = "Copyright © 2025 ";
+pub const PORTER_COPYRIGHT: &str = "Copyright © 2024 DTZxPorter";
 /// Program website url.
-pub const PORTER_SITE_URL: &str = "https://github.com";
+pub const PORTER_SITE_URL: &str = "https://dtzxporter.com";
 /// Program donate url.
 pub const PORTER_DONATE_URL: &str = "https://dtzxporter.com/donate";
 /// Program disclaimer.

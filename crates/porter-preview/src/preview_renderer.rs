@@ -587,7 +587,7 @@ impl PreviewRenderer {
             Some(RenderType::Material(material)) => {
                 material.draw(&mut render_pass);
             }
-            _ => draw_grid(),
+            _ => {},
         }
 
         drop(render_pass);

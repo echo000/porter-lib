@@ -1,4 +1,4 @@
-#![deny(unsafe_code)]
+// #![deny(unsafe_code)] // TODO: Disable it temporarily :(
 
 mod preview_camera;
 mod preview_key_state;
@@ -10,9 +10,11 @@ mod render_mesh;
 mod render_model;
 mod render_skeleton;
 mod render_type;
+mod audio_player;
 
 pub use preview_key_state::*;
 pub use preview_renderer::*;
+pub use audio_player::*;
 
 pub(crate) use preview_camera::*;
 pub(crate) use render_image::*;
