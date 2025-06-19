@@ -24,7 +24,7 @@ impl PorterMain {
                 .style(Color::from_rgb8(0xD4, 0xAF, 0x37))
                 .into(),
                 vertical_space().height(20.0).into(),
-                text("Please report all bugs or crashes to me on twitter @DTZxPorter.")
+                text("Please report all bugs or crashes to on github?")
                     .size(18.0)
                     .style(PorterLabelStyle)
                     .into(),

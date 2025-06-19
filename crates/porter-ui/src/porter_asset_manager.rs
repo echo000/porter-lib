@@ -9,7 +9,7 @@ use crate::PorterUI;
 /// A unified asset trait used to normalize the information across games.
 pub trait PorterAssetManager: Send + Sync + 'static {
     /// Returns the asset info in the form of the columns to render.
-    fn asset_info(&self, row_index: usize, columns: usize) -> Vec<(String, Option<Color>)>;
+    fn asset_info(&self, row_index: usize) -> Vec<(String, Option<Color>)>;
 
     /// Returns the number of assets renderable, as in search for, or loaded.
     fn len(&self) -> usize;

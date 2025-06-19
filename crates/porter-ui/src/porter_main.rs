@@ -439,7 +439,7 @@ impl Application for PorterMain {
                         text(format!("Version {}", self.version)).into(),
                         row([
                             text("Developed by:").into(),
-                            text("DTZxPorter")
+                            text("echo000 & dest1yo")
                                 .style(Color::from_rgb8(236, 52, 202))
                                 .into(),
                         ])
@@ -642,7 +642,7 @@ impl PorterMain {
                         .size(32.0)
                         .into(),
                     text("by").style(Color::WHITE).size(12.0).into(),
-                    text("DTZxPorter")
+                    text("echo000 & dest1yo")
                         .style(Color::from_rgb8(236, 52, 202))
                         .size(12.0)
                         .into(),
@@ -892,7 +892,7 @@ impl PorterMain {
             for (column, (value, color)) in self
                 .columns
                 .iter()
-                .zip(self.asset_manager.asset_info(row_index, self.columns.len()))
+                .zip(self.asset_manager.asset_info(row_index))
             {
                 columns.push(
                     PorterText::new(value)
