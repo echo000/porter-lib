@@ -45,7 +45,7 @@ impl World {
 
         meta_node
             .create_property(CastPropertyId::String, "a")
-            .push("DTZxPorter");
+            .push("echo000");
 
         meta_node
             .create_property(CastPropertyId::String, "s")

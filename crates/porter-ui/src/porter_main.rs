@@ -28,7 +28,6 @@ use iced::widget::scrollable;
 use iced::widget::text;
 use iced::widget::text_input;
 use iced::widget::vertical_space;
-use iced::widget::slider;
 
 use iced::multi_window::Application;
 use iced::Alignment;
@@ -43,7 +42,6 @@ use iced::Size;
 use iced::Theme;
 
 use porter_preview::PreviewRenderer;
-use porter_preview::AudioPlayer;
 
 use porter_utils::OptionExt;
 use porter_utils::StringCaseExt;
@@ -85,7 +83,6 @@ use crate::PorterViewport;
 use crate::PORTER_COPYRIGHT;
 use crate::PORTER_DISCLAIMER;
 use crate::PORTER_SITE_URL;
-use crate::porter_theme::PorterSliderStyle;
 
 /// The height of each row in px.
 pub const ROW_HEIGHT: f32 = 26.0;
@@ -128,6 +125,7 @@ pub struct PorterMain {
     pub(crate) multi_file: bool,
     pub(crate) preview_enabled: bool,
     pub(crate) animations_enabled: bool,
+    pub(crate) images_enabled: bool,
     pub(crate) materials_enabled: bool,
     pub(crate) sounds_enabled: bool,
     pub(crate) sounds_convertable: bool,
@@ -164,15 +162,6 @@ pub struct PorterMain {
     pub(crate) splash_id: Option<iced::window::Id>,
     pub(crate) splash_animation: f32,
     pub(crate) export_cancel: bool,
-    pub(crate) tick_secs: f32,
-    pub(crate) audio_player: Option<AudioPlayer>,
-    pub(crate) audio_is_playing: bool,
-    pub(crate) audio_current_time: Duration,
-    pub(crate) audio_total_duration: Duration,
-    pub(crate) audio_slider_pos: f32,
-    pub(crate) audio_slider_length: f32,
-    pub(crate) audio_slider_drag: bool,
-    pub(crate) audio_player_state: String,
 }
 
 /// Messages for the porter ui application.
@@ -212,10 +201,6 @@ pub enum Message {
     SaveExportFolder(PathBuf),
     ColumnDrag(usize, f32),
     ColumnDragEnd(usize),
-    Tick,
-    AudioSliderChanged(f32),
-    SeekAudio,
-    TogglePlayback,
     Noop,
 }
 
@@ -238,6 +223,10 @@ impl Application for PorterMain {
 
         if !flags.sounds_enabled {
             settings.set_load_sounds(false);
+        }
+
+        if !flags.images_enabled {
+            settings.set_load_images(false);
         }
 
         if !flags.raw_files_enabled {
@@ -265,6 +254,7 @@ impl Application for PorterMain {
                 file_filters: flags.file_filters,
                 multi_file: flags.multi_file,
                 preview_enabled: flags.preview,
+                images_enabled: flags.images_enabled,
                 animations_enabled: flags.animations_enabled,
                 materials_enabled: flags.materials_enabled,
                 sounds_enabled: flags.sounds_enabled,
@@ -302,15 +292,6 @@ impl Application for PorterMain {
                 splash_id: Some(splash_id),
                 splash_animation: 0.0,
                 export_cancel: false,
-                tick_secs: 0.1,
-                audio_player: None,
-                audio_is_playing: false,
-                audio_current_time: Duration::from_secs(0),
-                audio_total_duration: Duration::from_secs(0),
-                audio_slider_pos: 0.0,
-                audio_slider_length: 100.0,
-                audio_slider_drag: false,
-                audio_player_state: String::from(""),
             },
             splash_command,
         )
@@ -356,19 +337,12 @@ impl Application for PorterMain {
             Message::SaveExportFolder(path) => self.on_save_export_folder(path),
             Message::ColumnDrag(index, offset) => self.on_column_drag(index, offset),
             Message::ColumnDragEnd(index) => self.on_column_drag_end(index),
-            Message::Tick => { self.on_tick() },
-            Message::AudioSliderChanged(pos) => { self.on_audio_slider_changed(pos) },
-            Message::SeekAudio => { self.on_seek_audio() },
-            Message::TogglePlayback => { self.on_toggle_playback() },
             Message::Noop => self.on_noop(),
         }
     }
 
     fn subscription(&self) -> iced::Subscription<Self::Message> {
-        let mut subscriptions: Vec<iced::Subscription<Message>> = vec![];
-
         let events = iced::event::listen().map(Message::UIEvent);
-        subscriptions.push(events);
 
         let channel = iced::subscription::channel("main", 100, |mut output| async move {
             let (tx, mut rx) = mpsc::unbounded::<Message>();
@@ -385,11 +359,6 @@ impl Application for PorterMain {
                 }
             }
         });
-        subscriptions.push(channel);
-
-        let tick =
-            iced::time::every(Duration::from_secs_f32(self.tick_secs)).map(|_| Message::Tick);
-        subscriptions.push(tick);
 
         if self.splash_id.is_some() {
             let splash = iced::subscription::channel("splash", 0, |mut output| async move {
@@ -418,10 +387,10 @@ impl Application for PorterMain {
                 }
             });
 
-            subscriptions.push(splash);
+            iced::Subscription::batch([events, channel, splash])
+        } else {
+            iced::Subscription::batch([events, channel])
         }
-
-        iced::Subscription::batch(subscriptions)
     }
 
     fn view(&self, id: iced::window::Id) -> Element<'_, Self::Message> {
@@ -434,7 +403,7 @@ impl Application for PorterMain {
                 vec![
                     self.header(),
                     self.search(),
-                    row([self.list(), self.preview(preview)/*self.preview_audio()*/])
+                    row([self.list(), self.preview(preview)])
                         .width(Length::Fill)
                         .height(Length::Fill)
                         .align_items(Alignment::Center)
@@ -474,26 +443,24 @@ impl Application for PorterMain {
                         text(self.description).into(),
                         vertical_space().height(42.0).into(),
                         text(format!("Version {}", self.version)).into(),
-                        // row([
-                        //     text("Developed by:").into(),
-                        //     text("DTZxPorter")
-                        //         .style(Color::from_rgb8(236, 52, 202))
-                        //         .into(),
-                        // ])
-                        // .spacing(4.0)
-                        // .into(),
-                        // button(text(PORTER_SITE_URL))
-                        //     .on_press(Message::Website)
-                        //     .style(PorterLinkStyle)
-                        //     .padding(0.0)
-                        //     .into(),
+                        row([
+                            text("Developed by:").into(),
+                            text("echo000").style(Color::from_rgb8(236, 52, 202)).into(),
+                        ])
+                        .spacing(4.0)
+                        .into(),
+                        button(text(PORTER_SITE_URL))
+                            .on_press(Message::Website)
+                            .style(PorterLinkStyle)
+                            .padding(0.0)
+                            .into(),
                         container(column([
                             text(PORTER_DISCLAIMER)
                                 .size(14.0)
                                 .style(Color::from_rgb8(0xC1, 0xC1, 0xC1))
                                 .into(),
-                            // vertical_space().height(10.0).into(),
-                            // text(PORTER_COPYRIGHT).into(),
+                            vertical_space().height(10.0).into(),
+                            text(PORTER_COPYRIGHT).into(),
                             vertical_space().height(20.0).into(),
                         ]))
                         .width(Length::Fill)
@@ -658,103 +625,11 @@ impl PorterMain {
         .into()
     }
 
-    /// Constructs the preview element and header.
-    pub fn preview_audio(&self) -> Element<Message> {
-        container(
-            column([
-                // Header
-                container(
-                    row([
-                        text("Asset Preview")
-                            .width(Length::Fill)
-                            .style(Color::WHITE)
-                            .into(),
-                        button(text("\u{2715}").size(20.0).shaping(text::Shaping::Advanced))
-                            .on_press(Message::ClosePreview)
-                            .padding(0.0)
-                            .style(PorterPreviewButtonStyle)
-                            .into(),
-                    ])
-                        .width(Length::Fill)
-                        .height(Length::Fill)
-                        .align_items(Alignment::Center),
-                )
-                    .width(Length::Fill)
-                    .height(30.0)
-                    .padding([0.0, 8.0, 0.0, 4.0])
-                    .align_y(Vertical::Center)
-                    .style(PorterColumnHeader)
-                    .into(),
-
-                // Audio player
-
-                // Play button
-                container(
-                    button(self.audio_player_state.as_str())
-                        .width(56.0)
-                        .height(30.0)
-                        .on_press(Message::TogglePlayback)
-                        .style(PorterButtonStyle),
-                )
-                    .width(Length::Fill)
-                    .height(Length::Fill)
-                    .padding(20)
-                    .align_y(Vertical::Center)
-                    .align_x(Horizontal::Center)
-                    .into(),
-
-                // Player slider
-                container(
-                    row([
-                        // Current time
-                        text(AudioPlayer::format_duration(self.audio_current_time))
-                            .width(/*Length::Fill*/35.0) // TODO:
-                            .style(Color::WHITE)
-                            .into(),
-
-                        // Slider
-                        slider(
-                            0.0..=self.audio_slider_length,
-                            self.audio_slider_pos,
-                            Message::AudioSliderChanged,
-                        )
-                            .width(Length::Fill)
-                            .height(15)
-                            .on_release(Message::SeekAudio)
-                            .style(PorterSliderStyle)
-                            .into(),
-
-                        // Total time
-                        text(AudioPlayer::format_duration(self.audio_total_duration))
-                            .width(/*Length::Fill*/35.0) // TODO:
-                            .style(Color::WHITE)
-                            .into(),
-                    ])
-                        .width(Length::Fill)
-                        .height(Length::Fill)
-                        .align_items(Alignment::Center)
-                        .spacing(4)
-                        .padding(20)
-                )
-                    .width(Length::Fill)
-                    .height(Length::Fill)
-                    .into(),
-            ])
-                .width(Length::Fill)
-                .height(Length::Fill)
-                .padding(1.0),
-        )
-            .width(Length::Fill)
-            .height(Length::Fill)
-            .style(PorterPreviewStyle)
-            .into()
-    }
-
     /// Constructs the header view element, with app info, version, about and settings.
     pub fn header(&self) -> Element<Message> {
         container(row([
             container(
-                button("Donate")
+                button("GitHub")
                     .on_press(Message::Donate)
                     .style(PorterButtonStyle),
             )
@@ -770,11 +645,11 @@ impl PorterMain {
                         .font(PorterTitleFont)
                         .size(32.0)
                         .into(),
-                    // text("by").style(Color::WHITE).size(12.0).into(),
-                    // text("DTZxPorter")
-                    //     .style(Color::from_rgb8(236, 52, 202))
-                    //     .size(12.0)
-                    //     .into(),
+                    text("by").style(Color::WHITE).size(12.0).into(),
+                    text("echo000")
+                        .style(Color::from_rgb8(236, 52, 202))
+                        .size(12.0)
+                        .into(),
                 ])
                 .height(Length::Fill)
                 .spacing(4.0)
@@ -1021,7 +896,7 @@ impl PorterMain {
             for (column, (value, color)) in self
                 .columns
                 .iter()
-                .zip(self.asset_manager.asset_info(row_index))
+                .zip(self.asset_manager.asset_info(row_index, self.columns.len()))
             {
                 columns.push(
                     PorterText::new(value)
@@ -1157,7 +1032,7 @@ impl PorterMain {
                     "Load a running instance of a supported game to view and export assets."
                 }
                 (true, false) => {
-                    "Load one of the supported game files to view and export assets."
+                    "Load a cast file."
                 }
                 (false, false) => "No supported loading mechanisms available.",
             }

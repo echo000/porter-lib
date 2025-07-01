@@ -10,5 +10,3 @@ porter-gpu = { path = "../porter-gpu" }
 porter-model = { path = "../porter-model" }
 porter-math = { path = "../porter-math" }
 porter-texture = { path = "../porter-texture" }
-porter-audio = { path = "../porter-audio" }
-rodio = "0.20.1"

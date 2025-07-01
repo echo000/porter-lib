@@ -28,37 +28,37 @@ impl PorterMain {
     /// Constructs the settings view.
     pub fn settings(&self) -> Element<Message> {
         let model_formats = self.settings.model_file_types();
-        let model_format_enabled =
-            |format: ModelFileType| model_formats.iter().any(|f| *f == format);
+        let model_format_enabled = |format: ModelFileType| model_formats.contains(&format);
 
         let anim_formats = self.settings.anim_file_types();
-        let anim_format_enabled =
-            |format: AnimationFileType| anim_formats.iter().any(|f| *f == format);
+        let anim_format_enabled = |format: AnimationFileType| anim_formats.contains(&format);
 
         let audio_formats = self.settings.audio_file_types();
-        let audio_format_enabled =
-            |format: AudioFileType| audio_formats.iter().any(|f| *f == format);
+        let audio_format_enabled = |format: AudioFileType| audio_formats.contains(&format);
 
-        let mut settings = vec![
-            text("Settings - General")
-                .size(20.0)
-                .style(PorterLabelStyle)
-                .into(),
-            vertical_space().height(2.0).into(),
-            text("Choose what asset types to load and display:")
-                .style(PorterLabelStyle)
-                .into(),
-            vertical_space().height(0.0).into(),
-            checkbox("Load Models", self.settings.load_models())
-                .on_toggle(|value| {
-                    Message::SaveSettings(
-                        self.settings
-                            .update(|settings| settings.set_load_models(value)),
-                    )
-                })
-                .style(PorterCheckboxStyle)
-                .into(),
-        ];
+        let mut settings = Vec::new();
+        if self.images_enabled {
+            settings.extend([
+                text("Settings - General")
+                    .size(20.0)
+                    .style(PorterLabelStyle)
+                    .into(),
+                vertical_space().height(2.0).into(),
+                text("Choose what asset types to load and display:")
+                    .style(PorterLabelStyle)
+                    .into(),
+                vertical_space().height(0.0).into(),
+                checkbox("Load Models", self.settings.load_models())
+                    .on_toggle(|value| {
+                        Message::SaveSettings(
+                            self.settings
+                                .update(|settings| settings.set_load_models(value)),
+                        )
+                    })
+                    .style(PorterCheckboxStyle)
+                    .into(),
+            ]);
+        }
 
         if self.animations_enabled {
             settings.push(
@@ -73,18 +73,19 @@ impl PorterMain {
                     .into(),
             );
         }
-
-        settings.push(
-            checkbox("Load Images", self.settings.load_images())
-                .on_toggle(|value| {
-                    Message::SaveSettings(
-                        self.settings
-                            .update(|settings| settings.set_load_images(value)),
-                    )
-                })
-                .style(PorterCheckboxStyle)
-                .into(),
-        );
+        if self.images_enabled {
+            settings.push(
+                checkbox("Load Images", self.settings.load_images())
+                    .on_toggle(|value| {
+                        Message::SaveSettings(
+                            self.settings
+                                .update(|settings| settings.set_load_images(value)),
+                        )
+                    })
+                    .style(PorterCheckboxStyle)
+                    .into(),
+            );
+        }
 
         if self.materials_enabled {
             settings.push(
@@ -128,181 +129,178 @@ impl PorterMain {
             );
         }
 
-        settings.extend([
-            vertical_space().height(2.0).into(),
-            text("Customize the exported files directory:")
-                .style(PorterLabelStyle)
-                .into(),
-            vertical_space().height(0.0).into(),
-            row(vec![
-                text_input(
-                    "Exported files directory",
-                    self.settings.output_directory().to_string_lossy().as_ref(),
-                )
-                .on_input(|_| Message::Noop)
-                .width(500.0)
-                .style(PorterTextInputStyle)
-                .into(),
-                button("Browse")
-                    .on_press(Message::PickExportFolder)
-                    .style(PorterButtonStyle)
+        //Temp disable this
+        if self.images_enabled {
+            settings.extend([
+                vertical_space().height(2.0).into(),
+                text("Customize the exported files directory:")
+                    .style(PorterLabelStyle)
                     .into(),
-                button("Open")
-                    .on_press(Message::OpenExportFolder)
-                    .style(PorterButtonStyle)
-                    .into(),
-            ])
-            .spacing(4.0)
-            .into(),
-            vertical_space().height(2.0).into(),
-            text("Choose whether or not to automatically scale assets (Recommended):")
-                .style(PorterLabelStyle)
-                .into(),
-            vertical_space().height(0.0).into(),
-            checkbox("Automatically scale assets", self.settings.auto_scale())
-                .on_toggle(|value| {
-                    Message::SaveSettings(
-                        self.settings
-                            .update(|settings| settings.set_auto_scale(value)),
+                vertical_space().height(0.0).into(),
+                row(vec![
+                    text_input(
+                        "Exported files directory",
+                        self.settings.output_directory().to_string_lossy().as_ref(),
                     )
-                })
-                .style(PorterCheckboxStyle)
+                    .on_input(|_| Message::Noop)
+                    .width(500.0)
+                    .style(PorterTextInputStyle)
+                    .into(),
+                    button("Browse")
+                        .on_press(Message::PickExportFolder)
+                        .style(PorterButtonStyle)
+                        .into(),
+                    button("Open")
+                        .on_press(Message::OpenExportFolder)
+                        .style(PorterButtonStyle)
+                        .into(),
+                ])
+                .spacing(4.0)
                 .into(),
-            vertical_space().height(4.0).into(),
-            text("Settings - Models")
-                .size(20.0)
-                .style(PorterLabelStyle)
-                .into(),
-            vertical_space().height(2.0).into(),
-            text("Choose what model file types to export to:")
-                .style(PorterLabelStyle)
-                .into(),
-            vertical_space().height(0.0).into(),
-            checkbox("Cast", model_format_enabled(ModelFileType::Cast))
-                .on_toggle(|value| {
-                    Message::SaveSettings(self.settings.update(|settings| {
-                        settings.set_model_file_type(ModelFileType::Cast, value)
-                    }))
-                })
-                .style(PorterCheckboxStyle)
-                .into(),
-            checkbox("OBJ", model_format_enabled(ModelFileType::Obj))
-                .on_toggle(|value| {
-                    Message::SaveSettings(
-                        self.settings.update(|settings| {
+                vertical_space().height(2.0).into(),
+                text("Choose whether or not to automatically scale assets (Recommended):")
+                    .style(PorterLabelStyle)
+                    .into(),
+                vertical_space().height(0.0).into(),
+                checkbox("Automatically scale assets", self.settings.auto_scale())
+                    .on_toggle(|value| {
+                        Message::SaveSettings(
+                            self.settings
+                                .update(|settings| settings.set_auto_scale(value)),
+                        )
+                    })
+                    .style(PorterCheckboxStyle)
+                    .into(),
+                vertical_space().height(4.0).into(),
+                text("Settings - Models")
+                    .size(20.0)
+                    .style(PorterLabelStyle)
+                    .into(),
+                vertical_space().height(2.0).into(),
+                text("Choose what model file types to export to:")
+                    .style(PorterLabelStyle)
+                    .into(),
+                vertical_space().height(0.0).into(),
+                checkbox("Cast", model_format_enabled(ModelFileType::Cast))
+                    .on_toggle(|value| {
+                        Message::SaveSettings(self.settings.update(|settings| {
+                            settings.set_model_file_type(ModelFileType::Cast, value)
+                        }))
+                    })
+                    .style(PorterCheckboxStyle)
+                    .into(),
+                checkbox("OBJ", model_format_enabled(ModelFileType::Obj))
+                    .on_toggle(|value| {
+                        Message::SaveSettings(self.settings.update(|settings| {
                             settings.set_model_file_type(ModelFileType::Obj, value)
-                        }),
-                    )
-                })
-                .style(PorterCheckboxStyle)
-                .into(),
-            checkbox("Valve SMD", model_format_enabled(ModelFileType::Smd))
-                .on_toggle(|value| {
-                    Message::SaveSettings(
-                        self.settings.update(|settings| {
+                        }))
+                    })
+                    .style(PorterCheckboxStyle)
+                    .into(),
+                checkbox("Valve SMD", model_format_enabled(ModelFileType::Smd))
+                    .on_toggle(|value| {
+                        Message::SaveSettings(self.settings.update(|settings| {
                             settings.set_model_file_type(ModelFileType::Smd, value)
-                        }),
-                    )
-                })
-                .style(PorterCheckboxStyle)
-                .into(),
-            checkbox("XNALara", model_format_enabled(ModelFileType::XnaLara))
+                        }))
+                    })
+                    .style(PorterCheckboxStyle)
+                    .into(),
+                checkbox("XNALara", model_format_enabled(ModelFileType::XnaLara))
+                    .on_toggle(|value| {
+                        Message::SaveSettings(self.settings.update(|settings| {
+                            settings.set_model_file_type(ModelFileType::XnaLara, value)
+                        }))
+                    })
+                    .style(PorterCheckboxStyle)
+                    .into(),
+                checkbox(
+                    "CoD XModel",
+                    model_format_enabled(ModelFileType::XModelExport),
+                )
                 .on_toggle(|value| {
                     Message::SaveSettings(self.settings.update(|settings| {
-                        settings.set_model_file_type(ModelFileType::XnaLara, value)
+                        settings.set_model_file_type(ModelFileType::XModelExport, value)
                     }))
                 })
                 .style(PorterCheckboxStyle)
                 .into(),
-            checkbox(
-                "CoD XModel",
-                model_format_enabled(ModelFileType::XModelExport),
-            )
-            .on_toggle(|value| {
-                Message::SaveSettings(self.settings.update(|settings| {
-                    settings.set_model_file_type(ModelFileType::XModelExport, value)
-                }))
-            })
-            .style(PorterCheckboxStyle)
-            .into(),
-            checkbox("Autodesk Maya", model_format_enabled(ModelFileType::Maya))
-                .on_toggle(|value| {
-                    Message::SaveSettings(self.settings.update(|settings| {
-                        settings.set_model_file_type(ModelFileType::Maya, value)
-                    }))
-                })
-                .style(PorterCheckboxStyle)
-                .into(),
-            checkbox("FBX", model_format_enabled(ModelFileType::Fbx))
-                .on_toggle(|value| {
-                    Message::SaveSettings(
-                        self.settings.update(|settings| {
+                checkbox("Autodesk Maya", model_format_enabled(ModelFileType::Maya))
+                    .on_toggle(|value| {
+                        Message::SaveSettings(self.settings.update(|settings| {
+                            settings.set_model_file_type(ModelFileType::Maya, value)
+                        }))
+                    })
+                    .style(PorterCheckboxStyle)
+                    .into(),
+                checkbox("FBX", model_format_enabled(ModelFileType::Fbx))
+                    .on_toggle(|value| {
+                        Message::SaveSettings(self.settings.update(|settings| {
                             settings.set_model_file_type(ModelFileType::Fbx, value)
-                        }),
-                    )
-                })
-                .style(PorterCheckboxStyle)
-                .into(),
-            vertical_space().height(4.0).into(),
-            text("Settings - Images")
-                .size(20.0)
-                .style(PorterLabelStyle)
-                .into(),
-            vertical_space().height(2.0).into(),
-            text("Choose what image file type to export to:")
-                .style(PorterLabelStyle)
-                .into(),
-            vertical_space().height(0.0).into(),
-            pick_list(
-                vec!["DDS", "PNG", "TIFF", "TGA"],
-                match self.settings.image_file_type() {
-                    ImageFileType::Dds => Some("DDS"),
-                    ImageFileType::Png => Some("PNG"),
-                    ImageFileType::Tiff => Some("TIFF"),
-                    ImageFileType::Tga => Some("TGA"),
-                },
-                |selected| {
-                    let format = match selected {
-                        "DDS" => ImageFileType::Dds,
-                        "PNG" => ImageFileType::Png,
-                        "TIFF" => ImageFileType::Tiff,
-                        "TGA" => ImageFileType::Tga,
-                        _ => ImageFileType::Dds,
-                    };
+                        }))
+                    })
+                    .style(PorterCheckboxStyle)
+                    .into(),
+                vertical_space().height(4.0).into(),
+                text("Settings - Images")
+                    .size(20.0)
+                    .style(PorterLabelStyle)
+                    .into(),
+                vertical_space().height(2.0).into(),
+                text("Choose what image file type to export to:")
+                    .style(PorterLabelStyle)
+                    .into(),
+                vertical_space().height(0.0).into(),
+                pick_list(
+                    vec!["DDS", "PNG", "TIFF", "TGA"],
+                    match self.settings.image_file_type() {
+                        ImageFileType::Dds => Some("DDS"),
+                        ImageFileType::Png => Some("PNG"),
+                        ImageFileType::Tiff => Some("TIFF"),
+                        ImageFileType::Tga => Some("TGA"),
+                    },
+                    |selected| {
+                        let format = match selected {
+                            "DDS" => ImageFileType::Dds,
+                            "PNG" => ImageFileType::Png,
+                            "TIFF" => ImageFileType::Tiff,
+                            "TGA" => ImageFileType::Tga,
+                            _ => ImageFileType::Dds,
+                        };
 
-                    Message::SaveSettings(
-                        self.settings
-                            .update(|settings| settings.set_image_file_type(format)),
-                    )
-                },
-            )
-            .style(PorterPickListStyle)
-            .width(Length::Fixed(150.0))
-            .into(),
-            vertical_space().height(2.0).into(),
-        ]);
+                        Message::SaveSettings(
+                            self.settings
+                                .update(|settings| settings.set_image_file_type(format)),
+                        )
+                    },
+                )
+                .style(PorterPickListStyle)
+                .width(Length::Fixed(150.0))
+                .into(),
+                vertical_space().height(2.0).into(),
+            ]);
 
-        match self.settings.image_file_type() {
-            ImageFileType::Tga => {
-                settings.push(
+            match self.settings.image_file_type() {
+                ImageFileType::Tga => {
+                    settings.push(
                     text("(The selected image format may be lossy or take up more space than necessary)")
                         .style(PorterLabelWarningStyle)
                         .into()
                 );
-            }
-            ImageFileType::Dds => {
-                settings.push(
+                }
+                ImageFileType::Dds => {
+                    settings.push(
                     text("(The selected image format is lossless but may have compatibility issues with some software)")
                         .style(PorterLabelSuccessStyle)
                         .into(),
                 );
-            }
-            _ => {
-                settings.push(
-                    text("(The selected image format is lossless and recommended for export)")
-                        .style(PorterLabelSuccessStyle)
-                        .into(),
-                );
+                }
+                _ => {
+                    settings.push(
+                        text("(The selected image format is lossless and recommended for export)")
+                            .style(PorterLabelSuccessStyle)
+                            .into(),
+                    );
+                }
             }
         }
 

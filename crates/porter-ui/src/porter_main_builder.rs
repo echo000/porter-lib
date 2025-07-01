@@ -20,6 +20,7 @@ pub struct PorterMainBuilder {
     pub(crate) file_filters: Vec<(String, Vec<String>)>,
     pub(crate) multi_file: bool,
     pub(crate) preview: bool,
+    pub(crate) images_enabled: bool,
     pub(crate) animations_enabled: bool,
     pub(crate) materials_enabled: bool,
     pub(crate) sounds_enabled: bool,
@@ -89,6 +90,12 @@ impl PorterMainBuilder {
         self
     }
 
+    /// Enable or disable iamge support (Default: false).
+    pub const fn images_enabled(mut self, images: bool) -> Self {
+        self.images_enabled = images;
+        self
+    }
+
     /// Enable or disable material support (Default: false).
     pub const fn materials_enabled(mut self, materials: bool) -> Self {
         self.materials_enabled = materials;
@@ -154,6 +161,7 @@ pub fn create_main<A: PorterAssetManager + 'static>(asset_manager: A) -> PorterM
         file_filters: Vec::new(),
         multi_file: false,
         preview: true,
+        images_enabled: false,
         animations_enabled: false,
         materials_enabled: false,
         sounds_enabled: false,
