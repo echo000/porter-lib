@@ -162,7 +162,7 @@ impl PorterMain {
             .item_selection
             .iter()
             .copied()
-            .map(|index| self.asset_manager.asset_info(index, 1))
+            .map(|index| self.asset_manager.asset_info(index))
             .map(|mut info| info.remove(0).0)
             .collect::<Vec<_>>()
             .join("\n");

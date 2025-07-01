@@ -896,7 +896,7 @@ impl PorterMain {
             for (column, (value, color)) in self
                 .columns
                 .iter()
-                .zip(self.asset_manager.asset_info(row_index, self.columns.len()))
+                .zip(self.asset_manager.asset_info(row_index))
             {
                 columns.push(
                     PorterText::new(value)
