@@ -806,70 +806,70 @@ impl PorterMain {
             );
         }
 
-        row = row
-            .push(
-                button("Export Selected")
-                    .padding([5.0, 8.0])
-                    .style(PorterButtonStyle)
-                    .on_press_maybe(
-                        if self.item_selection.is_empty() || self.loading || self.exporting {
-                            None
-                        } else {
-                            Some(Message::ExportSelected)
-                        },
-                    ),
-            )
-            .push(
-                button("Export All")
-                    .padding([5.0, 8.0])
-                    .style(PorterButtonStyle)
-                    .on_press_maybe(
-                        if self.asset_manager.is_empty() || self.loading || self.exporting {
-                            None
-                        } else {
-                            Some(Message::ExportAll)
-                        },
-                    ),
-            );
+        // row = row
+        //     .push(
+        //         button("Export Selected")
+        //             .padding([5.0, 8.0])
+        //             .style(PorterButtonStyle)
+        //             .on_press_maybe(
+        //                 if self.item_selection.is_empty() || self.loading || self.exporting {
+        //                     None
+        //                 } else {
+        //                     Some(Message::ExportSelected)
+        //                 },
+        //             ),
+        //     )
+        //     .push(
+        //         button("Export All")
+        //             .padding([5.0, 8.0])
+        //             .style(PorterButtonStyle)
+        //             .on_press_maybe(
+        //                 if self.asset_manager.is_empty() || self.loading || self.exporting {
+        //                     None
+        //                 } else {
+        //                     Some(Message::ExportAll)
+        //                 },
+        //             ),
+        //     );
 
-        if self.exporting {
-            if self.export_cancel {
-                row = row.push(
-                    button("Canceling...")
-                        .padding([5.0, 8.0])
-                        .style(PorterButtonStyle),
-                );
-            } else {
-                row = row.push(
-                    button("Cancel")
-                        .padding([5.0, 8.0])
-                        .style(PorterButtonStyle)
-                        .on_press(Message::CancelExport),
-                );
-            }
-
-            row = row.push(
-                container(porter_overlay(
-                    progress_bar(0.0..=100.0, self.export_progress.clamp(0, 100) as f32)
-                        .width(200.0)
-                        .height(32.0)
-                        .style(PorterProgressStyle),
-                    container(
-                        text(format!("{}%", self.export_progress.clamp(0, 100)))
-                            .size(16.0)
-                            .style(Color::WHITE),
-                    )
-                    .width(Length::Fill)
-                    .height(Length::Fill)
-                    .align_x(Horizontal::Center)
-                    .align_y(Vertical::Center),
-                ))
-                .width(Length::Fill)
-                .height(Length::Fill)
-                .align_x(Horizontal::Right)
-                .align_y(Vertical::Center),
-            );
-        }
+        // if self.exporting {
+        //     if self.export_cancel {
+        //         row = row.push(
+        //             button("Canceling...")
+        //                 .padding([5.0, 8.0])
+        //                 .style(PorterButtonStyle),
+        //         );
+        //     } else {
+        //         row = row.push(
+        //             button("Cancel")
+        //                 .padding([5.0, 8.0])
+        //                 .style(PorterButtonStyle)
+        //                 .on_press(Message::CancelExport),
+        //         );
+        //     }
+        //
+        //     row = row.push(
+        //         container(porter_overlay(
+        //             progress_bar(0.0..=100.0, self.export_progress.clamp(0, 100) as f32)
+        //                 .width(200.0)
+        //                 .height(32.0)
+        //                 .style(PorterProgressStyle),
+        //             container(
+        //                 text(format!("{}%", self.export_progress.clamp(0, 100)))
+        //                     .size(16.0)
+        //                     .style(Color::WHITE),
+        //             )
+        //             .width(Length::Fill)
+        //             .height(Length::Fill)
+        //             .align_x(Horizontal::Center)
+        //             .align_y(Vertical::Center),
+        //         ))
+        //         .width(Length::Fill)
+        //         .height(Length::Fill)
+        //         .align_x(Horizontal::Right)
+        //         .align_y(Vertical::Center),
+        //     );
+        // }
 
         container(row).width(Length::Fill).height(52.0).into()
     }
