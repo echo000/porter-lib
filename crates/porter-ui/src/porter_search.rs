@@ -226,7 +226,7 @@ impl PorterSearch {
         while let Some(Some(name)) = names.next() {
             match name {
                 PorterSearchName::Contained(name) => {
-                    let hash = name.hash_fnv1a(offset, prime);
+                    let hash = name.hash_fnv1a(offset, prime) & 0xFFFFFFFFFFFFFFF;
                     let hash_str = hash.to_string();
                     if !asset.name.contains(name.as_str())
                         && !asset.name.contains(hash_str.as_str())
@@ -235,7 +235,7 @@ impl PorterSearch {
                     }
                 }
                 PorterSearchName::NotContained(name) => {
-                    let hash = name.hash_fnv1a(offset, prime);
+                    let hash = name.hash_fnv1a(offset, prime) & 0xFFFFFFFFFFFFFFF;
                     let hash_str = hash.to_string();
                     if asset.name.contains(name.as_str()) || asset.name.contains(hash_str.as_str())
                     {
