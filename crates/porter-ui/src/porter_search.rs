@@ -226,19 +226,18 @@ impl PorterSearch {
         while let Some(Some(name)) = names.next() {
             match name {
                 PorterSearchName::Contained(name) => {
+                    let hash = name.hash_fnv1a(offset, prime);
+                    let hash_str = hash.to_string();
                     if !asset.name.contains(name.as_str())
-                        || !asset
-                            .name
-                            .contains(name.hash_fnv1a(offset, prime).to_string().as_str())
+                        || !asset.name.contains(hash_str.as_str())
                     {
                         return false;
                     }
                 }
                 PorterSearchName::NotContained(name) => {
-                    if asset.name.contains(name.as_str())
-                        || !asset
-                            .name
-                            .contains(name.hash_fnv1a(offset, prime).to_string().as_str())
+                    let hash = name.hash_fnv1a(offset, prime);
+                    let hash_str = hash.to_string();
+                    if asset.name.contains(name.as_str()) || asset.name.contains(hash_str.as_str())
                     {
                         return false;
                     }
