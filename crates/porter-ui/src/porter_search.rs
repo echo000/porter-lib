@@ -229,7 +229,7 @@ impl PorterSearch {
                     let hash = name.hash_fnv1a(offset, prime);
                     let hash_str = hash.to_string();
                     if !asset.name.contains(name.as_str())
-                        || !asset.name.contains(hash_str.as_str())
+                        && !asset.name.contains(hash_str.as_str())
                     {
                         return false;
                     }
