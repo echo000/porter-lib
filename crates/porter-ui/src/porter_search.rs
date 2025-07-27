@@ -200,7 +200,7 @@ impl PorterSearch {
     }
 
     /// Determines if the given asset matches this search command.
-    //#[inline(always)]
+    #[inline(always)]
     pub fn matches_with_hash(&self, asset: PorterSearchAsset, offset: u64, prime: u64) -> bool {
         if asset.bone_count > self.bone_count.max || asset.bone_count < self.bone_count.min {
             return false;
