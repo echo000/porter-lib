@@ -23,3 +23,11 @@ Cargo.lock
 
 # macOS
 .DS_Store
+
+# IDE generated files
+.idea
+.vscode
+.zed
+
+# rustfmt
+rustfmt.toml
