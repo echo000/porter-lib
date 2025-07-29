@@ -810,7 +810,7 @@ impl PorterMain {
     }
 
     pub fn on_open_config_folder(&mut self) -> Command<Message> {
-        let Some(project_directory) = ProjectDirs::from("com", "DTZxPorter", "GameTools") else {
+        let Some(project_directory) = ProjectDirs::from("com", "", "Saluki") else {
             return Command::none();
         };
 

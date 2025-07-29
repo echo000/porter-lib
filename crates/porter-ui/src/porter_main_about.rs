@@ -30,13 +30,13 @@ impl PorterMain {
                 //     .into(),
                 vertical_space().height(20.0).into(),
                 text(PORTER_DISCLAIMER).style(PorterLabelStyle).into(),
-                text(format!(
-                    "\"{}\" {}.",
-                    self.name.to_uppercase(),
-                    PORTER_COPYRIGHT
-                ))
-                .style(PorterLabelStyle)
-                .into(),
+                // text(format!(
+                //     "\"{}\" {}.",
+                //     self.name.to_uppercase(),
+                //     PORTER_COPYRIGHT
+                // ))
+                // .style(PorterLabelStyle)
+                // .into(),
             ])
             .spacing(8.0)
             .align_items(Alignment::Center),

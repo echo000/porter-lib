@@ -128,6 +128,25 @@ impl PorterMain {
             );
         }
 
+        // TODO: Move to corresponding settings section later.
+        // The purpose of putting them here is just to facilitate repo merging later.
+        settings.extend([
+            vertical_space().height(2.0).into(),
+            text("Choose whether or not to download high-res images from CDN (Recommended):")
+                .style(PorterLabelStyle)
+                .into(),
+            vertical_space().height(0.0).into(),
+            checkbox("Download high-res images from CDN", self.settings.image_download_cdn())
+                .on_toggle(|value| {
+                    Message::SaveSettings(
+                        self.settings
+                            .update(|settings| settings.set_image_download_cdn(value)),
+                    )
+                })
+                .style(PorterCheckboxStyle)
+                .into(),
+        ]);
+
         settings.extend([
             vertical_space().height(2.0).into(),
             text("Customize the exported files directory:")

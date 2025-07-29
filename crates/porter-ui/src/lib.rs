@@ -78,7 +78,7 @@ pub fn install_panic_hook(name: &'static str, version: &'static str) {
         return;
     }
 
-    if let Some(project_directory) = ProjectDirs::from("com", "DTZxPorter", "GameTools") {
+    if let Some(project_directory) = ProjectDirs::from("com", "", "Saluki") {
         let target = project_directory
             .config_dir()
             .join(name.to_lowercase())

@@ -87,6 +87,7 @@ pub struct PorterSettings {
     audio_settings: PorterAudioSettings,
     image_file_type: ImageFileType,
     image_normal_map_processing: ImageNormalMapProcessing,
+    image_download_cdn: bool,
     output_directory: Option<PathBuf>,
     preview_controls: PreviewControlScheme,
     preview_overlay: bool,
@@ -97,7 +98,7 @@ pub struct PorterSettings {
 impl PorterSettings {
     /// Loads the settings from the disk at the given path, or returns new ones.
     pub fn load<S: Into<String>>(name: S) -> PorterSettings {
-        let Some(project_directory) = ProjectDirs::from("com", "DTZxPorter", "GameTools") else {
+        let Some(project_directory) = ProjectDirs::from("com", "", "Saluki") else {
             return Default::default();
         };
 
@@ -118,7 +119,7 @@ impl PorterSettings {
 
     /// Saves the settings to the disk at the given path.
     pub fn save<S: Into<String>>(&self, name: S) {
-        let Some(project_directory) = ProjectDirs::from("com", "DTZxPorter", "GameTools") else {
+        let Some(project_directory) = ProjectDirs::from("com", "", "Saluki") else {
             return;
         };
 
@@ -383,6 +384,16 @@ impl PorterSettings {
         self.image_normal_map_processing = processing;
     }
 
+    /// Whether or not to download high-res images from CDN.
+    pub fn image_download_cdn(&self) -> bool {
+        self.image_download_cdn
+    }
+
+    /// Sets whether or not to download high-res images from CDN.
+    pub fn set_image_download_cdn(&mut self, value: bool) {
+        self.image_download_cdn = value;
+    }
+
     /// An output directory used to save assets.
     pub fn output_directory(&self) -> PathBuf {
         if let Some(output_directory) = self.output_directory.clone() {
@@ -468,6 +479,7 @@ impl Default for PorterSettings {
             audio_settings: PorterAudioSettings::EXPORT_WAV,
             image_file_type: ImageFileType::Dds,
             image_normal_map_processing: ImageNormalMapProcessing::None,
+            image_download_cdn: true,
             output_directory: None,
             preview_controls: PreviewControlScheme::Maya,
             preview_overlay: true,
