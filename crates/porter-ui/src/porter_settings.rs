@@ -88,6 +88,7 @@ pub struct PorterSettings {
     image_file_type: ImageFileType,
     image_normal_map_processing: ImageNormalMapProcessing,
     image_download_cdn: bool,
+    preview_download_cdn: bool,
     output_directory: Option<PathBuf>,
     preview_controls: PreviewControlScheme,
     preview_overlay: bool,
@@ -394,6 +395,16 @@ impl PorterSettings {
         self.image_download_cdn = value;
     }
 
+    /// Whether or not to download high-res images from CDN when previewing.
+    pub fn preview_download_cdn(&self) -> bool {
+        self.preview_download_cdn
+    }
+
+    /// Sets whether or not to download high-res images from CDN when previewing.
+    pub fn set_preview_download_cdn(&mut self, value: bool) {
+        self.preview_download_cdn = value;
+    }
+
     /// An output directory used to save assets.
     pub fn output_directory(&self) -> PathBuf {
         if let Some(output_directory) = self.output_directory.clone() {
@@ -480,6 +491,7 @@ impl Default for PorterSettings {
             image_file_type: ImageFileType::Dds,
             image_normal_map_processing: ImageNormalMapProcessing::None,
             image_download_cdn: true,
+            preview_download_cdn: false,
             output_directory: None,
             preview_controls: PreviewControlScheme::Maya,
             preview_overlay: true,

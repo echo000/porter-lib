@@ -145,6 +145,20 @@ impl PorterMain {
                 })
                 .style(PorterCheckboxStyle)
                 .into(),
+            vertical_space().height(2.0).into(),
+            text("Choose whether or not to download high-res images from CDN when previewing:")
+                .style(PorterLabelStyle)
+                .into(),
+            vertical_space().height(0.0).into(),
+            checkbox("Download high-res images from CDN when previewing", self.settings.preview_download_cdn())
+                .on_toggle(|value| {
+                    Message::SaveSettings(
+                        self.settings
+                            .update(|settings| settings.set_preview_download_cdn(value)),
+                    )
+                })
+                .style(PorterCheckboxStyle)
+                .into(),
         ]);
 
         settings.extend([
