@@ -94,6 +94,8 @@ pub struct PorterSettings {
     preview_overlay: bool,
     auto_scale: bool,
     far_clip: u32,
+    lod_export: bool,
+    export_image_names: bool,
 }
 
 impl PorterSettings {
@@ -458,6 +460,26 @@ impl PorterSettings {
         self.auto_scale = value;
     }
 
+    /// Whether or not lods are exported.
+    pub fn export_lods(&self) -> bool {
+        self.lod_export
+    }
+
+    /// Sets whether or not to export available lods.
+    pub fn set_export_lods(&mut self, value: bool) {
+        self.lod_export = value;
+    }
+
+    /// Whether or not lods are exported.
+    pub fn export_image_names(&self) -> bool {
+        self.export_image_names
+    }
+
+    /// Sets whether or not to export available lods.
+    pub fn set_export_image_names(&mut self, value: bool) {
+        self.export_image_names = value;
+    }
+
     /// Gets the far clip distance for preview.
     pub fn far_clip(&self) -> u32 {
         self.far_clip.clamp(10000, 1000000)
@@ -497,6 +519,8 @@ impl Default for PorterSettings {
             preview_overlay: true,
             auto_scale: true,
             far_clip: 10000,
+            lod_export: false,
+            export_image_names: false,
         }
     }
 }

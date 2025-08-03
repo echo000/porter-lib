@@ -136,29 +136,35 @@ impl PorterMain {
                 .style(PorterLabelStyle)
                 .into(),
             vertical_space().height(0.0).into(),
-            checkbox("Download high-res images from CDN", self.settings.image_download_cdn())
-                .on_toggle(|value| {
-                    Message::SaveSettings(
-                        self.settings
-                            .update(|settings| settings.set_image_download_cdn(value)),
-                    )
-                })
-                .style(PorterCheckboxStyle)
-                .into(),
+            checkbox(
+                "Download high-res images from CDN",
+                self.settings.image_download_cdn(),
+            )
+            .on_toggle(|value| {
+                Message::SaveSettings(
+                    self.settings
+                        .update(|settings| settings.set_image_download_cdn(value)),
+                )
+            })
+            .style(PorterCheckboxStyle)
+            .into(),
             vertical_space().height(2.0).into(),
             text("Choose whether or not to download high-res images from CDN when previewing:")
                 .style(PorterLabelStyle)
                 .into(),
             vertical_space().height(0.0).into(),
-            checkbox("Download high-res images from CDN when previewing", self.settings.preview_download_cdn())
-                .on_toggle(|value| {
-                    Message::SaveSettings(
-                        self.settings
-                            .update(|settings| settings.set_preview_download_cdn(value)),
-                    )
-                })
-                .style(PorterCheckboxStyle)
-                .into(),
+            checkbox(
+                "Download high-res images from CDN when previewing",
+                self.settings.preview_download_cdn(),
+            )
+            .on_toggle(|value| {
+                Message::SaveSettings(
+                    self.settings
+                        .update(|settings| settings.set_preview_download_cdn(value)),
+                )
+            })
+            .style(PorterCheckboxStyle)
+            .into(),
         ]);
 
         settings.extend([
@@ -205,6 +211,26 @@ impl PorterMain {
             text("Settings - Models")
                 .size(20.0)
                 .style(PorterLabelStyle)
+                .into(),
+            vertical_space().height(0.0).into(),
+            checkbox("Export all available LODs", self.settings.export_lods())
+                .on_toggle(|value| {
+                    Message::SaveSettings(
+                        self.settings
+                            .update(|settings| settings.set_export_lods(value)),
+                    )
+                })
+                .style(PorterCheckboxStyle)
+                .into(),
+            vertical_space().height(0.0).into(),
+            checkbox("Export image names", self.settings.export_image_names())
+                .on_toggle(|value| {
+                    Message::SaveSettings(
+                        self.settings
+                            .update(|settings| settings.set_export_image_names(value)),
+                    )
+                })
+                .style(PorterCheckboxStyle)
                 .into(),
             vertical_space().height(2.0).into(),
             text("Choose what model file types to export to:")
