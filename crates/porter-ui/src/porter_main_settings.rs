@@ -212,6 +212,10 @@ impl PorterMain {
                 .size(20.0)
                 .style(PorterLabelStyle)
                 .into(),
+            vertical_space().height(2.0).into(),
+            text("Choose what to do with model lods:")
+                .style(PorterLabelStyle)
+                .into(),
             vertical_space().height(0.0).into(),
             checkbox("Export all available LODs", self.settings.export_lods())
                 .on_toggle(|value| {
@@ -221,6 +225,10 @@ impl PorterMain {
                     )
                 })
                 .style(PorterCheckboxStyle)
+                .into(),
+            vertical_space().height(2.0).into(),
+            text("Export material image names")
+                .style(PorterLabelStyle)
                 .into(),
             vertical_space().height(0.0).into(),
             checkbox("Export image names", self.settings.export_image_names())
