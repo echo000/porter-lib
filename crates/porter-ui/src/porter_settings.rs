@@ -96,6 +96,7 @@ pub struct PorterSettings {
     far_clip: u32,
     lod_export: bool,
     export_image_names: bool,
+    export_material_folders: bool,
 }
 
 impl PorterSettings {
@@ -480,6 +481,16 @@ impl PorterSettings {
         self.export_image_names = value;
     }
 
+    /// Whether or not lods are exported.
+    pub fn export_material_folders(&self) -> bool {
+        self.export_material_folders
+    }
+
+    /// Sets whether or not to export available lods.
+    pub fn set_export_material_folders(&mut self, value: bool) {
+        self.export_material_folders = value;
+    }
+
     /// Gets the far clip distance for preview.
     pub fn far_clip(&self) -> u32 {
         self.far_clip.clamp(10000, 1000000)
@@ -521,6 +532,7 @@ impl Default for PorterSettings {
             far_clip: 10000,
             lod_export: false,
             export_image_names: false,
+            export_material_folders: false,
         }
     }
 }

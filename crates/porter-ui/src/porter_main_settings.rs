@@ -227,7 +227,7 @@ impl PorterMain {
                 .style(PorterCheckboxStyle)
                 .into(),
             vertical_space().height(2.0).into(),
-            text("Export material image names")
+            text("Model Material Settings")
                 .style(PorterLabelStyle)
                 .into(),
             vertical_space().height(0.0).into(),
@@ -240,7 +240,18 @@ impl PorterMain {
                 })
                 .style(PorterCheckboxStyle)
                 .into(),
-            vertical_space().height(2.0).into(),
+            checkbox(
+                "Export images into material folders",
+                self.settings.export_material_folders(),
+            )
+            .on_toggle(|value| {
+                Message::SaveSettings(
+                    self.settings
+                        .update(|settings| settings.set_export_material_folders(value)),
+                )
+            })
+            .style(PorterCheckboxStyle)
+            .into(),
             text("Choose what model file types to export to:")
                 .style(PorterLabelStyle)
                 .into(),
