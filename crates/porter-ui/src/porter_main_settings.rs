@@ -252,6 +252,7 @@ impl PorterMain {
             })
             .style(PorterCheckboxStyle)
             .into(),
+            vertical_space().height(2.0).into(),
             text("Choose what model file types to export to:")
                 .style(PorterLabelStyle)
                 .into(),
