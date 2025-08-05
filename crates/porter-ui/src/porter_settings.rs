@@ -481,12 +481,12 @@ impl PorterSettings {
         self.export_image_names = value;
     }
 
-    /// Whether or not lods are exported.
+    /// Whether or not material images are exported into material folders.
     pub fn export_material_folders(&self) -> bool {
         self.export_material_folders
     }
 
-    /// Sets whether or not to export available lods.
+    /// Sets whether or not material images are exported into material folders.
     pub fn set_export_material_folders(&mut self, value: bool) {
         self.export_material_folders = value;
     }
