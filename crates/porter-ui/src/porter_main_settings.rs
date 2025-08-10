@@ -136,7 +136,7 @@ impl PorterMain {
                 .into(),
             vertical_space().height(0.0).into(),
             pick_list(
-                vec!["None", "Name"],
+                vec!["Loaded", "Name"],
                 match self.settings.asset_sorting() {
                     AssetSortOrder::None => Some("Loaded"),
                     AssetSortOrder::Name => Some("Name"),
