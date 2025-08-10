@@ -77,6 +77,12 @@ pub enum PreviewControlScheme {
     Blender,
 }
 
+#[derive(Debug, Decode, Encode, Clone, Copy, PartialEq, Eq)]
+pub enum AssetSortOrder {
+    None,
+    Name,
+}
+
 /// Global application settings.
 #[derive(Debug, Decode, Encode, Clone)]
 pub struct PorterSettings {
@@ -98,6 +104,7 @@ pub struct PorterSettings {
     export_image_names: bool,
     export_material_folders: bool,
     log_assets: bool,
+    asset_order: AssetSortOrder,
 }
 
 impl PorterSettings {
@@ -158,6 +165,7 @@ impl PorterSettings {
             || self.load_sounds() != new_settings.load_sounds()
             || self.load_raw_files() != new_settings.load_raw_files()
             || self.force_raw_files() != new_settings.force_raw_files()
+            || self.asset_sorting() != new_settings.asset_sorting()
         {
             return true;
         }
@@ -442,6 +450,16 @@ impl PorterSettings {
         self.preview_controls = controls;
     }
 
+    /// Gets the asset sorting order.
+    pub fn asset_sorting(&self) -> AssetSortOrder {
+        self.asset_order
+    }
+
+    /// Sets the asset sorting order.
+    pub fn set_asset_sorting(&mut self, order: AssetSortOrder) {
+        self.asset_order = order;
+    }
+
     /// Whether or not to show the preview overlay hints.
     pub fn preview_overlay(&self) -> bool {
         self.preview_overlay
@@ -545,6 +563,7 @@ impl Default for PorterSettings {
             export_image_names: false,
             export_material_folders: false,
             log_assets: false,
+            asset_order: AssetSortOrder::Name,
         }
     }
 }

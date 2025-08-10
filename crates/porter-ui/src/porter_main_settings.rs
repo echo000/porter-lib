@@ -9,6 +9,7 @@ use porter_audio::AudioFileType;
 use porter_model::ModelFileType;
 use porter_texture::ImageFileType;
 
+use crate::AssetSortOrder;
 use crate::ImageNormalMapProcessing;
 use crate::Message;
 use crate::PorterButtonStyle;
@@ -127,6 +128,37 @@ impl PorterMain {
                     .into(),
             );
         }
+
+        settings.extend([
+            vertical_space().height(2.0).into(),
+            text("Choose an asset sorting order:")
+                .style(PorterLabelStyle)
+                .into(),
+            vertical_space().height(0.0).into(),
+            pick_list(
+                vec!["None", "Name"],
+                match self.settings.asset_sorting() {
+                    AssetSortOrder::None => Some("None"),
+                    AssetSortOrder::Name => Some("Name"),
+                },
+                |selected| {
+                    let order = match selected {
+                        "None" => AssetSortOrder::None,
+                        "Name" => AssetSortOrder::Name,
+                        _ => AssetSortOrder::None,
+                    };
+
+                    Message::SaveSettings(
+                        self.settings
+                            .update(|settings| settings.set_asset_sorting(order)),
+                    )
+                },
+            )
+            .width(Length::Fixed(150.0))
+            .style(PorterPickListStyle)
+            .into(),
+            vertical_space().height(4.0).into(),
+        ]);
 
         // TODO: Move to corresponding settings section later.
         // The purpose of putting them here is just to facilitate repo merging later.
