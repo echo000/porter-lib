@@ -553,6 +553,23 @@ impl PorterMain {
                 .into(),
         ]);
 
+        settings.extend([
+            vertical_space().height(2.0).into(),
+            text("Choose whether or not to log assets:")
+                .style(PorterLabelStyle)
+                .into(),
+            vertical_space().height(0.0).into(),
+            checkbox("Log assets", self.settings.log_assets())
+                .on_toggle(|value| {
+                    Message::SaveSettings(
+                        self.settings
+                            .update(|settings| settings.set_log_assets(value)),
+                    )
+                })
+                .style(PorterCheckboxStyle)
+                .into(),
+        ]);
+
         if self.raw_files_forcable {
             settings.extend([
                 vertical_space().height(2.0).into(),

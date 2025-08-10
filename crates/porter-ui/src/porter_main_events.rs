@@ -31,9 +31,9 @@ use rfd::MessageLevel;
 
 use directories::ProjectDirs;
 
+use porter_preview::AudioPlayer;
 use porter_preview::PreviewKeyState;
 use porter_preview::PreviewRenderer;
-use porter_preview::AudioPlayer;
 
 use porter_utils::StringCaseExt;
 
