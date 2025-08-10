@@ -138,12 +138,12 @@ impl PorterMain {
             pick_list(
                 vec!["None", "Name"],
                 match self.settings.asset_sorting() {
-                    AssetSortOrder::None => Some("None"),
+                    AssetSortOrder::None => Some("Loaded"),
                     AssetSortOrder::Name => Some("Name"),
                 },
                 |selected| {
                     let order = match selected {
-                        "None" => AssetSortOrder::None,
+                        "Loaded" => AssetSortOrder::None,
                         "Name" => AssetSortOrder::Name,
                         _ => AssetSortOrder::None,
                     };
