@@ -128,7 +128,7 @@ pub fn to_png<O: Write + Seek>(image: &Image, output: &mut O) -> Result<(), Text
     encoder.set_depth(bit_depth);
 
     if is_srgb {
-        encoder.set_srgb(SrgbRenderingIntent::Perceptual);
+        encoder.set_source_srgb(SrgbRenderingIntent::Perceptual);
     }
 
     encoder.add_text_chunk("Author".into(), "DTZxPorter".into())?;

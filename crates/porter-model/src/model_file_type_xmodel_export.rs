@@ -107,7 +107,7 @@ pub fn to_xmodel_export<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), Mo
             bone.parent,
             bone.name
                 .as_ref()
-                .unwrap_or(&format!("porter_bone_{}", bone_index))
+                .unwrap_or(&format!("porter_bone_{bone_index}"))
         )?;
     }
 
@@ -131,9 +131,9 @@ pub fn to_xmodel_export<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), Mo
     let vertex_count = model.vertex_count();
 
     if vertex_count > u16::MAX as usize {
-        writeln!(xmodel, "NUMVERTS32 {}", vertex_count)?;
+        writeln!(xmodel, "NUMVERTS32 {vertex_count}")?;
     } else {
-        writeln!(xmodel, "NUMVERTS {}", vertex_count)?;
+        writeln!(xmodel, "NUMVERTS {vertex_count}")?;
     }
 
     let mut vertex_index: usize = 0;
@@ -162,7 +162,7 @@ pub fn to_xmodel_export<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), Mo
             writeln!(xmodel, "BONES {}", weights.len())?;
 
             for (bone, value) in weights {
-                writeln!(xmodel, "BONE {} {:.6}", bone, value)?;
+                writeln!(xmodel, "BONE {bone} {value:.6}")?;
             }
 
             vertex_index += 1;
@@ -174,7 +174,7 @@ pub fn to_xmodel_export<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), Mo
     let mut vertex_index: usize = 0;
     let mut needs_default_material = false;
 
-    writeln!(xmodel, "NUMFACES {}", face_count)?;
+    writeln!(xmodel, "NUMFACES {face_count}")?;
 
     for (mesh_index, mesh) in model.meshes.iter().enumerate() {
         for face in &mesh.faces {
@@ -187,9 +187,9 @@ pub fn to_xmodel_export<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), Mo
             };
 
             if mesh_index > u8::MAX as usize {
-                writeln!(xmodel, "TRI16 {} {} 0 0", mesh_index, material_index)?;
+                writeln!(xmodel, "TRI16 {mesh_index} {material_index} 0 0")?;
             } else {
-                writeln!(xmodel, "TRI {} {} 0 0", mesh_index, material_index)?;
+                writeln!(xmodel, "TRI {mesh_index} {material_index} 0 0")?;
             }
 
             write_face_vertex!(xmodel, mesh, vertex_count, vertex_index, face.i3);
@@ -203,7 +203,7 @@ pub fn to_xmodel_export<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), Mo
     writeln!(xmodel, "NUMOBJECTS {}", model.meshes.len())?;
 
     for i in 0..model.meshes.len() {
-        writeln!(xmodel, "OBJECT {} \"PorterMesh_{}\"", i, i)?;
+        writeln!(xmodel, "OBJECT {i} \"PorterMesh_{i}\"")?;
     }
 
     if needs_default_material {

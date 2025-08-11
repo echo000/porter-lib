@@ -83,7 +83,7 @@ use crate::PorterText;
 use crate::PorterTextInputStyle;
 use crate::PorterTitleFont;
 use crate::PorterViewport;
-use crate::PORTER_COPYRIGHT;
+//use crate::PORTER_COPYRIGHT;
 use crate::PORTER_DISCLAIMER;
 use crate::PORTER_SITE_URL;
 

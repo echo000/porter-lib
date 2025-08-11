@@ -297,15 +297,15 @@ impl<'a> fmt::Debug for Vertex<'a> {
             .field("normal", &self.normal());
 
         for i in 0..self.buffer.uv_layers() {
-            debug.field(&format!("uv_layer[{}]", i), &self.uv(i));
+            debug.field(&format!("uv_layer[{i}]"), &self.uv(i));
         }
 
         for i in 0..self.buffer.maximum_influence() {
-            debug.field(&format!("weight[{}]", i), &self.weight(i));
+            debug.field(&format!("weight[{i}]"), &self.weight(i));
         }
 
         for i in 0..self.buffer.colors() {
-            debug.field(&format!("color[{}]", i), &self.color(i));
+            debug.field(&format!("color[{i}]"), &self.color(i));
         }
 
         debug.finish()
@@ -321,15 +321,15 @@ impl<'a> fmt::Debug for VertexMut<'a> {
             .field("normal", &self.normal());
 
         for i in 0..self.buffer.uv_layers() {
-            debug.field(&format!("uv_layer[{}]", i), &self.uv(i));
+            debug.field(&format!("uv_layer[{i}]"), &self.uv(i));
         }
 
         for i in 0..self.buffer.maximum_influence() {
-            debug.field(&format!("weight[{}]", i), &self.weight(i));
+            debug.field(&format!("weight[{i}]"), &self.weight(i));
         }
 
         for i in 0..self.buffer.colors() {
-            debug.field(&format!("color[{}]", i), &self.color(i));
+            debug.field(&format!("color[{i}]"), &self.color(i));
         }
 
         debug.finish()

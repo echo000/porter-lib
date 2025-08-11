@@ -59,7 +59,7 @@ pub fn to_smd<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), ModelError> 
             bone_index,
             bone.name
                 .as_ref()
-                .unwrap_or(&format!("porter_bone_{}", bone_index)),
+                .unwrap_or(&format!("porter_bone_{bone_index}")),
             bone.parent
         )?;
     }
@@ -97,7 +97,7 @@ pub fn to_smd<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), ModelError> 
         };
 
         for face in &mesh.faces {
-            writeln!(smd, "{}", material)?;
+            writeln!(smd, "{material}")?;
 
             write_face_vertex!(smd, mesh, face.i3);
             write_face_vertex!(smd, mesh, face.i2);

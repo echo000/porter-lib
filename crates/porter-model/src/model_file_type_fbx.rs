@@ -83,7 +83,7 @@ fn initialize_texture_node(
     texture_node.create_hash();
     texture_node
         .create_property(FbxPropertyType::String)
-        .push_string(format!("{}\u{0000}\u{0001}Texture", texture_name));
+        .push_string(format!("{texture_name}\u{0000}\u{0001}Texture"));
     texture_node
         .create_property(FbxPropertyType::String)
         .push_string("");
@@ -99,7 +99,7 @@ fn initialize_texture_node(
     texture_node
         .create("TextureName")
         .create_property(FbxPropertyType::String)
-        .push_string(format!("{}\u{0000}\u{0001}Texture", texture_name));
+        .push_string(format!("{texture_name}\u{0000}\u{0001}Texture"));
 
     let properties = texture_node.create("Properties70");
 
@@ -162,7 +162,7 @@ fn initialize_texture_node(
     texture_node
         .create("Media")
         .create_property(FbxPropertyType::String)
-        .push_string(format!("{}\u{0000}\u{0001}Video", texture_name));
+        .push_string(format!("{texture_name}\u{0000}\u{0001}Video"));
 
     texture_node
         .create("FileName")
@@ -359,7 +359,7 @@ pub fn to_fbx<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), ModelError> 
                     "{}\u{0000}\u{0001}Model",
                     bone.name
                         .as_deref()
-                        .unwrap_or(&format!("porter_bone_{}", bone_index))
+                        .unwrap_or(&format!("porter_bone_{bone_index}"))
                 ));
             joint
                 .create_property(FbxPropertyType::String)
@@ -637,7 +637,7 @@ pub fn to_fbx<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), ModelError> 
         mesh_node.create_hash();
         mesh_node
             .create_property(FbxPropertyType::String)
-            .push_string(format!("PorterMesh{}\u{0000}\u{0001}Model", mesh_index));
+            .push_string(format!("PorterMesh{mesh_index}\u{0000}\u{0001}Model"));
         mesh_node
             .create_property(FbxPropertyType::String)
             .push_string("Mesh");
@@ -729,7 +729,7 @@ pub fn to_fbx<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), ModelError> 
         geometry.create_hash();
         geometry
             .create_property(FbxPropertyType::String)
-            .push_string(format!("PorterMesh{}\u{0000}\u{0001}Geometry", mesh_index));
+            .push_string(format!("PorterMesh{mesh_index}\u{0000}\u{0001}Geometry"));
         geometry
             .create_property(FbxPropertyType::String)
             .push_string("Mesh");
@@ -842,7 +842,7 @@ pub fn to_fbx<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), ModelError> 
             layer_color
                 .create("Name")
                 .create_property(FbxPropertyType::String)
-                .push_string(format!("colorSet{}", i));
+                .push_string(format!("colorSet{i}"));
             layer_color
                 .create("Version")
                 .create_property(FbxPropertyType::Integer32)
@@ -985,7 +985,7 @@ pub fn to_fbx<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), ModelError> 
         deformer.create_hash();
         deformer
             .create_property(FbxPropertyType::String)
-            .push_string(format!("PorterMesh{}\u{0000}\u{0001}Deformer", mesh_index));
+            .push_string(format!("PorterMesh{mesh_index}\u{0000}\u{0001}Deformer"));
         deformer
             .create_property(FbxPropertyType::String)
             .push_string("Skin");
@@ -1102,8 +1102,7 @@ pub fn to_fbx<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), ModelError> 
             sub_deformer
                 .create_property(FbxPropertyType::String)
                 .push_string(format!(
-                    "PorterMesh{}_Bone{}\u{0000}\u{0001}SubDeformer",
-                    mesh_index, bone_id
+                    "PorterMesh{mesh_index}_Bone{bone_id}\u{0000}\u{0001}SubDeformer"
                 ));
             sub_deformer
                 .create_property(FbxPropertyType::String)

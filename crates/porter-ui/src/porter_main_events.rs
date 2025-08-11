@@ -416,32 +416,29 @@ impl PorterMain {
             return Command::none();
         }
 
-        if let Some(previewer) = &mut self.previewer {
-            if let Some(asset) = asset.clone() {
-                match asset {
-                    PorterPreviewAsset::Model(name, model, materials) => {
-                        previewer.set_preview(name, (model, materials));
-                    }
-                    PorterPreviewAsset::Image(name, image) => {
-                        previewer.set_preview(name, image);
-                    }
-                    PorterPreviewAsset::Material(name, images) => {
-                        previewer.set_preview(name, images);
-                    }
-                    _ => {}
-                }
-            }
-        }
-
         if let Some(asset) = asset {
             match asset {
+                PorterPreviewAsset::Model(name, model, materials) => {
+                    if let Some(previewer) = &mut self.previewer {
+                        previewer.set_preview(name, (model, materials));
+                    }
+                }
+                PorterPreviewAsset::Image(name, image) => {
+                    if let Some(previewer) = &mut self.previewer {
+                        previewer.set_preview(name, image);
+                    }
+                }
+                PorterPreviewAsset::Material(name, images) => {
+                    if let Some(previewer) = &mut self.previewer {
+                        previewer.set_preview(name, images);
+                    }
+                }
                 PorterPreviewAsset::Audio(name, audio) => {
                     if let Some(audio_player) = &mut self.audio_player {
                         audio_player.set_preview(name, audio);
                     }
                     return Command::none();
                 }
-                _ => {}
             }
         }
 

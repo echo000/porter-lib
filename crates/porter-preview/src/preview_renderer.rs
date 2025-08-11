@@ -587,7 +587,7 @@ impl PreviewRenderer {
             Some(RenderType::Material(material)) => {
                 material.draw(&mut render_pass);
             }
-            _ => {},
+            _ => {}
         }
 
         drop(render_pass);
@@ -639,8 +639,7 @@ impl PreviewRenderer {
 
         let buffer = output_slice.get_mapped_range();
 
-        let nbh = (self.height as usize + (block_dimensions.1 as usize - 1))
-            / block_dimensions.1 as usize;
+        let nbh = (self.height as usize).div_ceil(block_dimensions.1 as usize);
 
         let truncated_size = bytes_per_row as usize * nbh;
         let aligned_bytes_per_row = bytes_per_row.as_aligned(COPY_BYTES_PER_ROW_ALIGNMENT) as usize;

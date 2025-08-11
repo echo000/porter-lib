@@ -169,10 +169,7 @@ impl Mesh {
             }
 
             if self.vertices.maximum_influence() > 0 && !(0.9825..=1.125).contains(&total) {
-                println!(
-                    "Validation Error: Found weight doesn't add up to 1.0: {} [{}]",
-                    total, v
-                );
+                println!("Validation Error: Found weight doesn't add up to 1.0: {total} [{v}]");
             }
         }
 

@@ -104,8 +104,8 @@ fn compute_pitch_slice(format: ImageFormat, width: u32, height: u32) -> (u32, u3
         | ImageFormat::Bc4Typeless
         | ImageFormat::Bc4Unorm
         | ImageFormat::Bc4Snorm => {
-            let nbw = 1u32.max((width + 3) / 4);
-            let nbh = 1u32.max((height + 3) / 4);
+            let nbw = 1u32.max(width.div_ceil(4));
+            let nbh = 1u32.max(height.div_ceil(4));
 
             let pitch = nbw * 8;
             let slice = pitch * nbh;
@@ -127,8 +127,8 @@ fn compute_pitch_slice(format: ImageFormat, width: u32, height: u32) -> (u32, u3
         | ImageFormat::Bc7Typeless
         | ImageFormat::Bc7Unorm
         | ImageFormat::Bc7UnormSrgb => {
-            let nbw = 1u32.max((width + 3) / 4);
-            let nbh = 1u32.max((height + 3) / 4);
+            let nbw = 1u32.max(width.div_ceil(4));
+            let nbh = 1u32.max(height.div_ceil(4));
 
             let pitch = nbw * 16;
             let slice = pitch * nbh;
@@ -137,7 +137,7 @@ fn compute_pitch_slice(format: ImageFormat, width: u32, height: u32) -> (u32, u3
         }
         _ => {
             let bpp = format_to_bpp(format);
-            let pitch = (width * bpp + 7) / 8;
+            let pitch = (width * bpp).div_ceil(8);
             let slice = pitch * height;
 
             (pitch, slice)
@@ -370,7 +370,7 @@ fn dds_to_format(pixel_format: &DdsPixelFormat) -> Result<ImageFormat, TextureEr
     }
 
     #[cfg(debug_assertions)]
-    println!("Unsupported masks: {:#02X?}", pixel_format);
+    println!("Unsupported masks: {pixel_format:#02X?}");
 
     Err(TextureError::UnsupportedImageFormat(ImageFormat::Unknown))
 }

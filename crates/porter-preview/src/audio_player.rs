@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use rodio::{OutputStream, Sink, Source, source::SeekError};
+use rodio::{source::SeekError, OutputStream, Sink, Source};
 
 use porter_audio::Audio;
 
@@ -8,6 +8,12 @@ pub struct AudioPlayer {
     pub stream: OutputStream,
     pub sink: Sink,
     pub total_duration: Option<Duration>,
+}
+
+impl Default for AudioPlayer {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl AudioPlayer {
@@ -26,11 +32,11 @@ impl AudioPlayer {
         }
     }
 
-    pub fn set_preview(&mut self, name: String, audio: Audio) {
-        self.play_new(audio).unwrap();
+    pub fn set_preview(&mut self, _name: String, audio: Audio) {
+        self.play_new(audio);
     }
 
-    pub fn play_new(&mut self, audio: Audio) -> Result<(), ()> {
+    pub fn play_new(&mut self, audio: Audio) {
         // Clear the old ones
         self.sink.clear();
 
@@ -44,8 +50,6 @@ impl AudioPlayer {
         // Play the new one
         self.sink.append(source);
         self.play();
-
-        Ok(())
     }
 
     pub fn pos(&self) -> Option<f64> {

@@ -434,7 +434,7 @@ pub fn to_maya<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), ModelError>
                 "createNode joint -n \"{}\" -p \"Joints\";",
                 bone.name
                     .as_deref()
-                    .unwrap_or(&format!("porter_bone_{}", bone_index))
+                    .unwrap_or(&format!("porter_bone_{bone_index}"))
             )?;
         } else {
             writeln!(
@@ -442,7 +442,7 @@ pub fn to_maya<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), ModelError>
                 "createNode joint -n \"{}\" -p \"{}\";",
                 bone.name
                     .as_deref()
-                    .unwrap_or(&format!("porter_bone_{}", bone_index)),
+                    .unwrap_or(&format!("porter_bone_{bone_index}")),
                 model.skeleton.bones[bone.parent as usize]
                     .name
                     .as_deref()
@@ -483,7 +483,7 @@ pub fn to_maya<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), ModelError>
     }
 
     let mut bind = BufWriter::new(File::create(
-        path.with_file_name(format!("{}_BIND", file_name))
+        path.with_file_name(format!("{file_name}_BIND"))
             .with_extension("mel"),
     )?);
 
@@ -531,7 +531,7 @@ pub fn to_maya<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), ModelError>
         }
 
         for bone in &bone_names {
-            writeln!(bind, "   select -add {};", bone)?;
+            writeln!(bind, "   select -add {bone};")?;
         }
 
         writeln!(
@@ -574,7 +574,7 @@ pub fn to_maya<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), ModelError>
                         }
                     }
 
-                    write!(bind, "{}", weight_value)?;
+                    write!(bind, "{weight_value}")?;
                 }
             }
 
@@ -588,7 +588,7 @@ pub fn to_maya<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), ModelError>
             )?;
 
             for b in 0..bone_names.len() {
-                write!(bind, " $WM[$i][{}]", b)?;
+                write!(bind, " $WM[$i][{b}]")?;
             }
 
             writeln!(bind, "; }}")?;
@@ -602,8 +602,7 @@ pub fn to_maya<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), ModelError>
     for mesh_index in 0..model.meshes.len() {
         writeln!(
             bind,
-            "   catch(PorterMesh_{:02x}_{}_BindFunc());",
-            hash, mesh_index
+            "   catch(PorterMesh_{hash:02x}_{mesh_index}_BindFunc());"
         )?;
     }
 

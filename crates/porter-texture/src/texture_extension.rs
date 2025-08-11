@@ -43,7 +43,7 @@ impl TextureExtensions for TextureFormat {
         let block_size = self.block_copy_size(None).unwrap_or_default();
         let block_dims = self.block_dimensions();
 
-        let nbw = (width + (block_dims.0 - 1)) / block_dims.0;
+        let nbw = width.div_ceil(block_dims.0);
 
         block_size * nbw
     }

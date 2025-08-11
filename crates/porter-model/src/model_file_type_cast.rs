@@ -56,7 +56,7 @@ pub fn to_cast<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), ModelError>
             bone_node.create_property(CastPropertyId::String, "n").push(
                 bone.name
                     .as_deref()
-                    .unwrap_or(&format!("porter_bone_{}", bone_index)),
+                    .unwrap_or(&format!("porter_bone_{bone_index}")),
             );
 
             bone_node
@@ -216,12 +216,12 @@ pub fn to_cast<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), ModelError>
                 MaterialTextureRefUsage::Metalness => String::from("metal"),
                 MaterialTextureRefUsage::Anisotropy => String::from("aniso"),
                 MaterialTextureRefUsage::Unknown | MaterialTextureRefUsage::Count => {
-                    format!("extra{}", i)
+                    format!("extra{i}")
                 }
             };
 
             let slot = if used_slots.contains(&slot) {
-                format!("extra{}", i)
+                format!("extra{i}")
             } else {
                 used_slots.insert(slot.clone());
                 slot
@@ -282,7 +282,7 @@ pub fn to_cast<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), ModelError>
 
         for cl in 0..mesh.vertices.colors() {
             let color_layer =
-                mesh_node.create_property(CastPropertyId::Integer32, format!("c{}", cl));
+                mesh_node.create_property(CastPropertyId::Integer32, format!("c{cl}"));
 
             for i in 0..mesh.vertices.len() {
                 color_layer.push(u32::from(mesh.vertices.vertex(i).color(cl)));
@@ -290,7 +290,7 @@ pub fn to_cast<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), ModelError>
         }
 
         for uv in 0..mesh.vertices.uv_layers() {
-            let uv_layer = mesh_node.create_property(CastPropertyId::Vector2, format!("u{}", uv));
+            let uv_layer = mesh_node.create_property(CastPropertyId::Vector2, format!("u{uv}"));
 
             for i in 0..mesh.vertices.len() {
                 uv_layer.push(mesh.vertices.vertex(i).uv(uv));

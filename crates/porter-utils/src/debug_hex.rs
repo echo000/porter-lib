@@ -12,12 +12,12 @@ impl DebugHex for &[u8] {
         for chunk in self.chunks(16) {
             if chunk.len() == 16 {
                 for byte in chunk.iter().take(16) {
-                    print!("{:02X} ", byte);
+                    print!("{byte:02X} ");
                 }
                 println!()
             } else {
                 for byte in chunk.iter() {
-                    print!("{:02X} ", byte);
+                    print!("{byte:02X} ");
                 }
             }
         }

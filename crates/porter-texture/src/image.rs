@@ -152,7 +152,7 @@ impl Image {
             let truncated_size = target_format.buffer_size(width, height) as usize;
 
             if truncated_size != size {
-                let nbh = (height + (block_dims.1 - 1)) / block_dims.1;
+                let nbh = height.div_ceil(block_dims.1);
 
                 for y in 0..nbh {
                     let source = y as usize
@@ -214,7 +214,7 @@ impl Image {
             return Err(TextureError::UnsupportedImageFormat(src.format));
         }
 
-        let bytes_per_pixel = (bits_per_pixel + 7) / 8;
+        let bytes_per_pixel = bits_per_pixel.div_ceil(8);
 
         let mut src_x = src_rect.x as i32;
         let mut src_y = src_rect.y as i32;

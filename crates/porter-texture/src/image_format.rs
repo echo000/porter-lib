@@ -284,11 +284,11 @@ pub const fn format_to_buffer_size(format: ImageFormat, width: u32, height: u32)
         let block_size = format_to_block_size(format);
         let block_dimensions = format_to_block_dimensions(format);
 
-        let bytes_per_row = block_size * ((width + (block_dimensions.0 - 1)) / block_dimensions.0);
+        let bytes_per_row = block_size * width.div_ceil(block_dimensions.0);
 
-        bytes_per_row * ((height + (block_dimensions.1 - 1)) / block_dimensions.1)
+        bytes_per_row * height.div_ceil(block_dimensions.1)
     } else {
-        (width * height * format_to_bpp(format) + 7) / 8
+        (width * height * format_to_bpp(format)).div_ceil(8)
     }
 }
 

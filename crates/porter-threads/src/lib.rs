@@ -110,7 +110,7 @@ pub fn initialize_thread_pool() {
     INITIALIZE.call_once(|| {
         let result = rayon::ThreadPoolBuilder::new()
             .num_threads(num_cpus::get_physical().max(4))
-            .thread_name(|index| format!("porter-thread[{}]", index))
+            .thread_name(|index| format!("porter-thread[{index}]"))
             .build_global();
 
         debug_assert!(result.is_ok());

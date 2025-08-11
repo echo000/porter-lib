@@ -24,7 +24,7 @@ pub fn to_xna_lara<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), ModelEr
             "{}\n{}\n{:.6} {:.6} {:.6}",
             bone.name
                 .as_ref()
-                .unwrap_or(&format!("porter_bone_{}", bone_index)),
+                .unwrap_or(&format!("porter_bone_{bone_index}")),
             bone.parent,
             world_position.x,
             world_position.y,
@@ -46,14 +46,15 @@ pub fn to_xna_lara<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), ModelEr
         for i in 0..mesh.vertices.uv_layers() {
             if let Some(material_index) = mesh.material {
                 let diffuse = model.materials[material_index].base_color_texture();
+                let material_name = model.materials[material_index].name.as_str();
 
-                if let Some(diffuse) = diffuse {
-                    writeln!(xna, "{}\n{}", diffuse.file_name, i)?;
+                if diffuse.is_some() {
+                    writeln!(xna, "{material_name}\n{i}")?;
                 } else {
-                    writeln!(xna, "default_material\n{}", i)?;
+                    writeln!(xna, "default_material\n{i}")?;
                 }
             } else {
-                writeln!(xna, "default_material\n{}", i)?;
+                writeln!(xna, "default_material\n{i}")?;
             }
         }
 

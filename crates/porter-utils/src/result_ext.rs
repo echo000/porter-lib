@@ -12,7 +12,7 @@ impl<T, E> ResultExt<T, E> for Result<T, E> {
         #[cfg(debug_assertions)]
         {
             if self.is_err() {
-                println!("[Debug] {}", message);
+                println!("[Debug] {message}");
             }
         }
 

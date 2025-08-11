@@ -29,16 +29,13 @@ impl PorterMain {
     /// Constructs the settings view.
     pub fn settings(&self) -> Element<Message> {
         let model_formats = self.settings.model_file_types();
-        let model_format_enabled =
-            |format: ModelFileType| model_formats.iter().any(|f| *f == format);
+        let model_format_enabled = |format: ModelFileType| model_formats.contains(&format);
 
         let anim_formats = self.settings.anim_file_types();
-        let anim_format_enabled =
-            |format: AnimationFileType| anim_formats.iter().any(|f| *f == format);
+        let anim_format_enabled = |format: AnimationFileType| anim_formats.contains(&format);
 
         let audio_formats = self.settings.audio_file_types();
-        let audio_format_enabled =
-            |format: AudioFileType| audio_formats.iter().any(|f| *f == format);
+        let audio_format_enabled = |format: AudioFileType| audio_formats.contains(&format);
 
         let mut settings = vec![
             text("Settings - General")

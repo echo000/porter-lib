@@ -132,7 +132,7 @@ pub fn to_semodel<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), ModelErr
     let mut has_colors = false;
 
     for mesh in &model.meshes {
-        if mesh.vertices.colors() {
+        if mesh.vertices.colors() > 0 {
             has_colors = true;
             break;
         }
@@ -152,7 +152,7 @@ pub fn to_semodel<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), ModelErr
         semodel.write_null_terminated_string(
             bone.name
                 .as_ref()
-                .unwrap_or(&format!("porter_bone_{}", bone_index)),
+                .unwrap_or(&format!("porter_bone_{bone_index}")),
         )?;
     }
 
@@ -202,8 +202,8 @@ pub fn to_semodel<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), ModelErr
 
         if has_colors {
             for i in 0..mesh.vertices.len() {
-                if mesh.vertices.colors() {
-                    semodel.write_struct(mesh.vertices.vertex(i).color())?;
+                if mesh.vertices.colors() > 0 {
+                    semodel.write_struct(mesh.vertices.vertex(i).color(0))?;
                 } else {
                     semodel.write_struct(VertexColor::new(255, 255, 255, 255))?;
                 }
@@ -246,9 +246,9 @@ pub fn to_semodel<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), ModelErr
             }
         }
 
-        for i in 0..mesh.vertices.uv_layers() {
-            if i < mesh.materials.len() {
-                semodel.write_all(&(mesh.materials[i] as i32).to_le_bytes())?;
+        for _ in 0..mesh.vertices.uv_layers() {
+            if let Some(material) = mesh.material {
+                semodel.write_all(&(material as i32).to_le_bytes())?;
             } else {
                 semodel.write_all(&(-1i32).to_le_bytes())?;
             }

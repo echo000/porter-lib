@@ -88,7 +88,7 @@ pub fn install_panic_hook(name: &'static str, version: &'static str) {
 
         std::panic::set_hook(Box::new(move |error| {
             let backtrace = Backtrace::force_capture();
-            let error = format!("{} {:?} ({})", error, backtrace, version);
+            let error = format!("{error} {backtrace:?} ({version})");
 
             let _ = std::fs::write(target.clone(), xor_encrypt(error, "asakujaku"));
         }));

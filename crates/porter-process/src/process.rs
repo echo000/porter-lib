@@ -51,9 +51,9 @@ impl Process {
             return false;
         };
 
-        return process.name == self.name()
+        process.name == self.name()
             && process.pid == self.pid()
-            && process.started_at == self.started_at();
+            && process.started_at == self.started_at()
     }
 
     /// The name of the process executable without the extension.
