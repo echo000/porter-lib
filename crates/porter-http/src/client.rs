@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::io;
 use std::path::Path;
 
@@ -20,6 +21,8 @@ pub struct HttpClient {
     pub(crate) accept: String,
     pub(crate) content_type: String,
     pub(crate) authorization: String,
+    pub(crate) enable_decompression: bool,
+    pub(crate) headers: HashMap<String, String>,
     pub(crate) progress: Option<HttpProgressCallback>,
 }
 
@@ -35,6 +38,8 @@ impl HttpClient {
             accept: String::new(),
             content_type: String::new(),
             authorization: String::new(),
+            enable_decompression: true,
+            headers: HashMap::new(),
             progress: None,
         }
     }
@@ -82,6 +87,20 @@ impl HttpClient {
     #[must_use]
     pub fn authorization<A: AsRef<str>>(mut self, authorization: A) -> Self {
         self.authorization = format!("Authorization: {}", authorization.as_ref());
+        self
+    }
+
+    /// Sets if enable the decompression for this request.
+    #[must_use]
+    pub fn set_decompression(mut self, enable: bool) -> Self {
+        self.enable_decompression = enable;
+        self
+    }
+
+    /// Sets the header for this request.
+    #[must_use]
+    pub fn header<S: Into<String>>(mut self, key: S, value: S) -> Self {
+        self.headers.insert(key.into(), value.into());
         self
     }
 

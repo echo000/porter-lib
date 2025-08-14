@@ -267,16 +267,18 @@ fn create_request(
         )
     };
 
-    let decompress: u32 = WINHTTP_DECOMPRESSION_FLAG_DEFLATE | WINHTTP_DECOMPRESSION_FLAG_GZIP;
+    if client.enable_decompression {
+        let decompression_flags: u32 = WINHTTP_DECOMPRESSION_FLAG_DEFLATE | WINHTTP_DECOMPRESSION_FLAG_GZIP;
 
-    unsafe {
-        WinHttpSetOption(
-            *request,
-            WINHTTP_OPTION_DECOMPRESSION,
-            &decompress as *const u32 as _,
-            size_of_val(&decompress) as _,
-        )
-    };
+        unsafe {
+            WinHttpSetOption(
+                *request,
+                WINHTTP_OPTION_DECOMPRESSION,
+                &decompression_flags as *const u32 as _,
+                size_of_val(&decompression_flags) as _,
+            )
+        };
+    }
 
     let mut headers: Vec<String> = Vec::new();
 
@@ -290,6 +292,12 @@ fn create_request(
 
     if !client.authorization.is_empty() {
         headers.push(client.authorization);
+    }
+
+    if !client.headers.is_empty() {
+        for header in &client.headers {
+            headers.push(format!("{}: {}", header.0, header.1));
+        }
     }
 
     if !headers.is_empty() {
@@ -405,32 +413,21 @@ fn make_request(request: &Request) -> Result<(String, f64), io::Error> {
         .to_string_lossy()
         .to_lowercase();
 
-    let mut content_length: [u16; 256] = [0; 256];
-    let mut content_length_length: u32 = content_length.len() as u32 * 2;
+    let mut content_length: u64 = 0;
+    let mut content_length_length: u32 =  size_of_val(&content_length) as _;
 
-    let result = unsafe {
+    unsafe {
         WinHttpQueryHeaders(
             *request.request,
-            WINHTTP_QUERY_CONTENT_LENGTH,
+            WINHTTP_QUERY_CONTENT_LENGTH | WINHTTP_QUERY_FLAG_NUMBER,
             std::ptr::null(),
-            content_length.as_mut_ptr() as _,
+            &mut content_length as *mut u64 as _,
             &mut content_length_length,
             std::ptr::null_mut(),
         )
     };
 
-    if result == 0 {
-        content_length_length = 0;
-    }
-
-    let content_length = &content_length[0..content_length_length as usize / 2];
-    let content_length: f64 = OsString::from_wide(content_length)
-        .to_string_lossy()
-        .trim()
-        .parse()
-        .unwrap_or_default();
-
-    Ok((content_type, content_length))
+    Ok((content_type, content_length as f64))
 }
 
 /// Reads a block of data from a request response body.
