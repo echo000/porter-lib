@@ -135,11 +135,34 @@ pub fn to_tga<O: Write + Seek>(image: &Image, output: &mut O) -> Result<(), Text
 
     output.write_struct(header)?;
 
+    let frame_width = image.width() as usize;
+    let frame_height = image.height() as usize;
+
     for frame in image.frames().take(MAXIMUM_TGA_FRAMES) {
+        let buf = frame.buffer();
+
         match color_type {
-            ColorType::Grayscale => write_rle_encode::<1, _>(frame.buffer(), output)?,
-            ColorType::Rgba => write_rle_encode::<4, _>(frame.buffer(), output)?,
-        };
+            ColorType::Grayscale => {
+                const BYTES_PER_PIXEL: usize = 1;
+
+                for y in 0..frame_height {
+                    let row_start = y * frame_width * BYTES_PER_PIXEL;
+                    let row_end = row_start + frame_width * BYTES_PER_PIXEL;
+
+                    write_rle_encode::<BYTES_PER_PIXEL, _>(&buf[row_start..row_end], output)?;
+                }
+            }
+            ColorType::Rgba => {
+                const BYTES_PER_PIXEL: usize = 4;
+
+                for y in 0..frame_height {
+                    let row_start = y * frame_width * BYTES_PER_PIXEL;
+                    let row_end = row_start + frame_width * BYTES_PER_PIXEL;
+
+                    write_rle_encode::<BYTES_PER_PIXEL, _>(&buf[row_start..row_end], output)?;
+                }
+            }
+        }
     }
 
     Ok(())
@@ -221,55 +244,48 @@ fn write_rle_encode<const BYTES_PER_PIXEL: usize, O: Write + Seek>(
     buffer: &[u8],
     output: &mut O,
 ) -> Result<(), TextureError> {
-    let mut counter = 0;
-    let mut prev_pixel: Option<&[u8]> = None;
-    let mut packet_type_rle = true;
+    let mut cursor = 0;
 
-    let mut scratch = StackVec::new([0; MAXIMUM_RLE_BUFFER]);
+    while cursor < buffer.len() {
+        let chunk_start = cursor;
+        let is_rle_packet = (cursor + BYTES_PER_PIXEL < buffer.len())
+            && buffer[cursor..cursor + BYTES_PER_PIXEL]
+                == buffer[cursor + BYTES_PER_PIXEL..cursor + 2 * BYTES_PER_PIXEL];
 
-    for pixel in buffer.chunks_exact(BYTES_PER_PIXEL) {
-        if let Some(prev_pixel) = prev_pixel {
-            if pixel == prev_pixel {
-                if !packet_type_rle && counter > 0 {
-                    write_raw(&scratch, counter as u8, output)?;
+        let mut packet_size = 1;
+        cursor += BYTES_PER_PIXEL;
 
-                    counter = 0;
-                    scratch.clear();
-                }
-
-                packet_type_rle = true;
-            } else if packet_type_rle && counter > 0 {
-                write_rle(prev_pixel, counter as u8, output)?;
-
-                counter = 0;
-                packet_type_rle = false;
-                scratch.clear();
-            }
-        }
-
-        counter += 1;
-        scratch.write_all(pixel)?;
-
-        if counter == MAXIMUM_RLE_LENGTH {
-            if packet_type_rle {
-                write_rle(prev_pixel.unwrap_or_default(), counter as u8, output)?;
-            } else {
-                write_raw(&scratch, counter as u8, output)?;
+        if is_rle_packet {
+            while packet_size < MAXIMUM_RLE_LENGTH
+                && cursor + BYTES_PER_PIXEL <= buffer.len()
+                && buffer[chunk_start..chunk_start + BYTES_PER_PIXEL]
+                    == buffer[cursor..cursor + BYTES_PER_PIXEL]
+            {
+                packet_size += 1;
+                cursor += BYTES_PER_PIXEL;
             }
 
-            counter = 0;
-            packet_type_rle = true;
-            scratch.clear();
-        }
-
-        prev_pixel = Some(pixel);
-    }
-
-    if counter > 0 {
-        if packet_type_rle {
-            write_rle(prev_pixel.unwrap_or_default(), counter as u8, output)?;
+            write_rle(
+                &buffer[chunk_start..chunk_start + BYTES_PER_PIXEL],
+                packet_size as u8,
+                output,
+            )?;
         } else {
-            write_raw(&scratch, counter as u8, output)?;
+            while packet_size < MAXIMUM_RLE_LENGTH
+                && cursor + BYTES_PER_PIXEL <= buffer.len()
+                && (cursor + BYTES_PER_PIXEL >= buffer.len()
+                    || buffer[cursor..cursor + BYTES_PER_PIXEL]
+                        != buffer[cursor + BYTES_PER_PIXEL..cursor + 2 * BYTES_PER_PIXEL])
+            {
+                packet_size += 1;
+                cursor += BYTES_PER_PIXEL;
+            }
+
+            write_raw(
+                &buffer[chunk_start..chunk_start + packet_size * BYTES_PER_PIXEL],
+                packet_size as u8,
+                output,
+            )?;
         }
     }
 
