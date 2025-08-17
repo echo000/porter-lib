@@ -5,9 +5,6 @@ use std::io::Write;
 use porter_utils::StructReadExt;
 use porter_utils::StructWriteExt;
 
-use crate::format_to_bpp;
-use crate::format_to_srgb;
-use crate::is_format_compressed;
 use crate::Image;
 use crate::ImageFileType;
 use crate::ImageFormat;
@@ -136,7 +133,7 @@ fn compute_pitch_slice(format: ImageFormat, width: u32, height: u32) -> (u32, u3
             (pitch, slice)
         }
         _ => {
-            let bpp = format_to_bpp(format);
+            let bpp = format.bits_per_pixel();
             let pitch = (width * bpp).div_ceil(8);
             let slice = pitch * height;
 
@@ -153,7 +150,7 @@ fn format_to_pf_dx10(
 ) -> (DdsPixelFormat, Option<DdsHeaderDx10>) {
     let dx10_fallback = || {
         let pixel_format = DdsPixelFormat {
-            size: std::mem::size_of::<DdsPixelFormat>() as u32,
+            size: size_of::<DdsPixelFormat>() as u32,
             flags: DDS_FOURCC,
             four_cc: make_four_cc!('D', 'X', '1', '0'),
             rgb_bit_count: 0,
@@ -185,7 +182,7 @@ fn format_to_pf_dx10(
     match format {
         ImageFormat::Bc1Unorm => (
             DdsPixelFormat {
-                size: std::mem::size_of::<DdsPixelFormat>() as u32,
+                size: size_of::<DdsPixelFormat>() as u32,
                 flags: DDS_FOURCC,
                 four_cc: make_four_cc!('D', 'X', 'T', '1'),
                 rgb_bit_count: 0,
@@ -198,7 +195,7 @@ fn format_to_pf_dx10(
         ),
         ImageFormat::Bc2Unorm => (
             DdsPixelFormat {
-                size: std::mem::size_of::<DdsPixelFormat>() as u32,
+                size: size_of::<DdsPixelFormat>() as u32,
                 flags: DDS_FOURCC,
                 four_cc: make_four_cc!('D', 'X', 'T', '3'),
                 rgb_bit_count: 0,
@@ -211,7 +208,7 @@ fn format_to_pf_dx10(
         ),
         ImageFormat::Bc3Unorm => (
             DdsPixelFormat {
-                size: std::mem::size_of::<DdsPixelFormat>() as u32,
+                size: size_of::<DdsPixelFormat>() as u32,
                 flags: DDS_FOURCC,
                 four_cc: make_four_cc!('D', 'X', 'T', '5'),
                 rgb_bit_count: 0,
@@ -224,7 +221,7 @@ fn format_to_pf_dx10(
         ),
         ImageFormat::Bc4Unorm => (
             DdsPixelFormat {
-                size: std::mem::size_of::<DdsPixelFormat>() as u32,
+                size: size_of::<DdsPixelFormat>() as u32,
                 flags: DDS_FOURCC,
                 four_cc: make_four_cc!('A', 'T', 'I', '1'),
                 rgb_bit_count: 0,
@@ -237,7 +234,7 @@ fn format_to_pf_dx10(
         ),
         ImageFormat::Bc5Unorm => (
             DdsPixelFormat {
-                size: std::mem::size_of::<DdsPixelFormat>() as u32,
+                size: size_of::<DdsPixelFormat>() as u32,
                 flags: DDS_FOURCC,
                 four_cc: make_four_cc!('A', 'T', 'I', '2'),
                 rgb_bit_count: 0,
@@ -250,7 +247,7 @@ fn format_to_pf_dx10(
         ),
         ImageFormat::R8G8B8Unorm => (
             DdsPixelFormat {
-                size: std::mem::size_of::<DdsPixelFormat>() as u32,
+                size: size_of::<DdsPixelFormat>() as u32,
                 flags: DDS_RGB,
                 four_cc: 0,
                 rgb_bit_count: 24,
@@ -289,7 +286,7 @@ fn format_to_dds(image: &Image) -> (DdsHeader, Option<DdsHeaderDx10>) {
 
     let (pitch, slice) = compute_pitch_slice(image.format(), image.width(), image.height());
 
-    let pitch_or_linear_size = if is_format_compressed(image.format()) {
+    let pitch_or_linear_size = if image.format().is_compressed() {
         flags |= DDS_HEADER_FLAGS_LINEARSIZE;
         slice
     } else {
@@ -301,7 +298,7 @@ fn format_to_dds(image: &Image) -> (DdsHeader, Option<DdsHeaderDx10>) {
         format_to_pf_dx10(image.format(), image.frames().len() as u32, is_cubemap);
 
     let header = DdsHeader {
-        size: std::mem::size_of::<DdsHeader>() as u32,
+        size: size_of::<DdsHeader>() as u32,
         flags,
         height: image.height(),
         width: image.width(),
@@ -425,7 +422,7 @@ pub fn from_dds<I: Read + Seek>(input: &mut I) -> Result<Image, TextureError> {
 
             frames = frames.max(header_dx10.array_size);
 
-            ImageFormat::try_from(header_dx10.dxgi_format)?
+            ImageFormat::from_dxgi_format(header_dx10.dxgi_format)?
         } else {
             dds_to_format(&header.pixel_format)?
         };
@@ -433,7 +430,7 @@ pub fn from_dds<I: Read + Seek>(input: &mut I) -> Result<Image, TextureError> {
     if header.reserved1[9] == make_four_cc!('N', 'V', 'T', 'T')
         && (header.pixel_format.flags & DDS_PIXEL_FORMAT_SRGB) > 0
     {
-        format = format_to_srgb(format);
+        format = format.to_srgb();
     }
 
     let mut image = Image::with_mipmaps(
