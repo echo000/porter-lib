@@ -127,7 +127,7 @@ impl PorterMain {
         }
 
         settings.extend([
-            vertical_space().height(2.0).into(),
+            vertical_space().height(0.0).into(),
             text("Choose an asset sorting order:")
                 .style(PorterLabelStyle)
                 .into(),
@@ -155,6 +155,19 @@ impl PorterMain {
             .style(PorterPickListStyle)
             .into(),
             vertical_space().height(4.0).into(),
+            checkbox(
+                "Skip Previously Exported",
+                self.settings.skip_previously_exported(),
+            )
+            .on_toggle(|value| {
+                Message::SaveSettings(
+                    self.settings
+                        .update(|settings| settings.set_skip_previously_exported(value)),
+                )
+            })
+            .style(PorterCheckboxStyle)
+            .into(),
+            vertical_space().height(2.0).into(),
         ]);
 
         // TODO: Move to corresponding settings section later.

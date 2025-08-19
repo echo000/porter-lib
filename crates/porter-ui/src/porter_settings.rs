@@ -104,6 +104,7 @@ pub struct PorterSettings {
     export_image_names: bool,
     export_material_folders: bool,
     log_assets: bool,
+    skip_previously_exported: bool,
     asset_order: AssetSortOrder,
 }
 
@@ -490,6 +491,16 @@ impl PorterSettings {
         self.lod_export = value;
     }
 
+    /// Whether or not to skip existing items.
+    pub fn skip_previously_exported(&self) -> bool {
+        self.skip_previously_exported
+    }
+
+    /// Sets whether or not to skip existing items.
+    pub fn set_skip_previously_exported(&mut self, value: bool) {
+        self.skip_previously_exported = value;
+    }
+
     /// Whether or not lods are exported.
     pub fn export_image_names(&self) -> bool {
         self.export_image_names
@@ -564,6 +575,7 @@ impl Default for PorterSettings {
             export_material_folders: false,
             log_assets: false,
             asset_order: AssetSortOrder::Name,
+            skip_previously_exported: true,
         }
     }
 }
