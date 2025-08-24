@@ -199,7 +199,7 @@ pub enum Message {
     SearchClear,
     SearchSubmit,
     CancelExport,
-    Donate,
+    Github,
     Website,
     ToggleAbout,
     ToggleSettings,
@@ -343,7 +343,7 @@ impl Application for PorterMain {
             Message::SearchClear => self.on_search_clear(),
             Message::SearchSubmit => self.on_search_submit(),
             Message::CancelExport => self.on_cancel_export(),
-            Message::Donate => self.on_donate(),
+            Message::Github => self.on_github(),
             Message::Website => self.on_website(),
             Message::ToggleSettings => self.on_toggle_settings(),
             Message::ToggleAbout => self.on_toggle_about(),
@@ -662,6 +662,7 @@ impl PorterMain {
     }
 
     /// Constructs the preview element and header.
+    #[allow(dead_code)]
     pub fn preview_audio(&self) -> Element<Message> {
         container(
             column([
@@ -753,8 +754,8 @@ impl PorterMain {
     pub fn header(&self) -> Element<Message> {
         container(row([
             container(
-                button("Donate")
-                    .on_press(Message::Donate)
+                button("Github")
+                    .on_press(Message::Github)
                     .style(PorterButtonStyle),
             )
             .height(Length::Fill)

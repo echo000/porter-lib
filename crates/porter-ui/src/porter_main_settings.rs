@@ -8,6 +8,7 @@ use porter_animation::AnimationFileType;
 use porter_audio::AudioFileType;
 use porter_model::ModelFileType;
 use porter_texture::ImageFileType;
+use porter_preview::PreviewControlScheme;
 
 use crate::AssetSortOrder;
 use crate::ImageNormalMapProcessing;
@@ -23,7 +24,6 @@ use crate::PorterScrollStyle;
 use crate::PorterSettings;
 use crate::PorterSliderStyle;
 use crate::PorterTextInputStyle;
-use crate::PreviewControlScheme;
 
 impl PorterMain {
     /// Constructs the settings view.
@@ -530,13 +530,15 @@ impl PorterMain {
                 .into(),
             vertical_space().height(0.0).into(),
             pick_list(
-                vec!["Autodesk Maya", "Blender"],
+                vec!["Simple", "Autodesk Maya", "Blender"],
                 match self.settings.preview_controls() {
+                    PreviewControlScheme::Simple => Some("Simple"),
                     PreviewControlScheme::Maya => Some("Autodesk Maya"),
                     PreviewControlScheme::Blender => Some("Blender"),
                 },
                 |selected| {
                     let controls = match selected {
+                        "Simple" => PreviewControlScheme::Simple,
                         "Autodesk Maya" => PreviewControlScheme::Maya,
                         "Blender" => PreviewControlScheme::Blender,
                         _ => PreviewControlScheme::Maya,

@@ -13,10 +13,10 @@ use porter_utils::AsThisSlice;
 
 use porter_texture::TextureExtensions;
 
-use crate::PreviewCamera;
 use crate::PreviewKeyState;
 use crate::RenderType;
 use crate::ToRenderType;
+use crate::{PreviewCamera, PreviewControlScheme};
 
 /// Renders 'preview' versions of models, animations, images, and materials.
 pub struct PreviewRenderer {
@@ -419,7 +419,7 @@ impl PreviewRenderer {
             self.camera
                 .set_orthographic_scale(self.scale as f32 / 100.0);
         } else {
-            self.camera.zoom(delta * 0.5);
+            self.camera.zoom_smooth(delta * 1.1);
         }
 
         self.camera
@@ -430,52 +430,83 @@ impl PreviewRenderer {
     pub fn mouse_move<D: Into<Vector2>>(&mut self, delta: D, key_state: PreviewKeyState) {
         let delta = delta.into();
 
-        if key_state.maya && !key_state.alt {
-            return;
-        }
+        const ROTATE_SPEED: f32 = 1.0 / 200.0;
+        const ZOOM_SPEED: f32 = 0.3;
+        // const PAN_SPEED: f32 = 0.15;
+        const PAN_SMOOTH_SPEED: f32 = 1.0 / 80.0;
 
-        if key_state.maya {
-            if key_state.left {
-                let phi = delta.y / 200.0;
-                let theta = delta.x / 200.0;
+        match key_state.control_scheme {
+            PreviewControlScheme::Simple => {
+                if key_state.left {
+                    let phi = delta.y * ROTATE_SPEED;
+                    let theta = delta.x * ROTATE_SPEED;
 
-                self.camera.rotate(theta, phi);
-                self.camera
-                    .update(self.instance, self.width, self.height, self.far_clip);
-            } else if key_state.right {
-                self.camera.zoom(-(delta.x / 2.0));
-                self.camera
-                    .update(self.instance, self.width, self.height, self.far_clip);
-            } else if key_state.middle {
-                let x = delta.x * 0.1;
-                let y = delta.y * 0.1;
+                    self.camera.rotate(theta, phi);
+                    self.camera
+                        .update(self.instance, self.width, self.height, self.far_clip);
+                } else if key_state.right {
+                    self.camera.zoom(-((delta.x + delta.y) * ZOOM_SPEED));
+                    self.camera
+                        .update(self.instance, self.width, self.height, self.far_clip);
+                } else if key_state.middle {
+                    let x = delta.x * PAN_SMOOTH_SPEED;
+                    let y = delta.y * PAN_SMOOTH_SPEED;
 
-                self.camera.pan(x, y);
-                self.camera
-                    .update(self.instance, self.width, self.height, self.far_clip);
+                    self.camera.pan_smooth(x, y);
+                    self.camera
+                        .update(self.instance, self.width, self.height, self.far_clip);
+                }
             }
-        } else if key_state.middle && key_state.shift {
-            let x = delta.x * 0.1;
-            let y = delta.y * 0.1;
+            PreviewControlScheme::Maya => {
+                if !key_state.alt {
+                    return;
+                }
 
-            self.camera.pan(x, y);
-            self.camera
-                .update(self.instance, self.width, self.height, self.far_clip);
-        } else if key_state.middle && key_state.alt {
-            self.camera.zoom(-(delta.x / 2.0));
-            self.camera
-                .update(self.instance, self.width, self.height, self.far_clip);
-        } else if key_state.middle {
-            let phi = delta.y / 200.0;
-            let theta = delta.x / 200.0;
+                if key_state.left {
+                    let phi = delta.y * ROTATE_SPEED;
+                    let theta = delta.x * ROTATE_SPEED;
 
-            self.camera.rotate(theta, phi);
-            self.camera
-                .update(self.instance, self.width, self.height, self.far_clip);
+                    self.camera.rotate(theta, phi);
+                    self.camera
+                        .update(self.instance, self.width, self.height, self.far_clip);
+                } else if key_state.right {
+                    self.camera.zoom(-((delta.x + delta.y) * ZOOM_SPEED));
+                    self.camera
+                        .update(self.instance, self.width, self.height, self.far_clip);
+                } else if key_state.middle {
+                    let x = delta.x * PAN_SMOOTH_SPEED;
+                    let y = delta.y * PAN_SMOOTH_SPEED;
+
+                    self.camera.pan_smooth(x, y);
+                    self.camera
+                        .update(self.instance, self.width, self.height, self.far_clip);
+                }
+            }
+            PreviewControlScheme::Blender => {
+                if key_state.middle && key_state.shift {
+                    let x = delta.x * PAN_SMOOTH_SPEED;
+                    let y = delta.y * PAN_SMOOTH_SPEED;
+
+                    self.camera.pan_smooth(x, y);
+                    self.camera
+                        .update(self.instance, self.width, self.height, self.far_clip);
+                } else if key_state.middle && key_state.alt {
+                    self.camera.zoom(-((delta.x + delta.y) * ZOOM_SPEED));
+                    self.camera
+                        .update(self.instance, self.width, self.height, self.far_clip);
+                } else if key_state.middle {
+                    let phi = delta.y * ROTATE_SPEED;
+                    let theta = delta.x * ROTATE_SPEED;
+
+                    self.camera.rotate(theta, phi);
+                    self.camera
+                        .update(self.instance, self.width, self.height, self.far_clip);
+                }
+            }
         }
     }
 
-    /// Returns the statistics for the current render assset.
+    /// Returns the statistics for the current render asset.
     pub fn statistics(&self) -> Vec<(String, String)> {
         match &self.render {
             Some(RenderType::Model(model)) => {

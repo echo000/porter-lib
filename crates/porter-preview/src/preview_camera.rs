@@ -1,3 +1,5 @@
+use std::cmp::Ordering;
+
 use wgpu::util::*;
 use wgpu::*;
 
@@ -228,7 +230,20 @@ impl PreviewCamera {
         }
     }
 
+    /// Zooms the camera by the given distance.
+    pub fn zoom_smooth(&mut self, distance: f32) {
+        const MIN_RADIUS: f32 = 1.0;
+
+        let target = self.radius - distance * (self.radius * 0.1);
+
+        match target.partial_cmp(&MIN_RADIUS) {
+            Some(Ordering::Less) => self.radius = MIN_RADIUS,
+            _ => self.radius = target,
+        }
+    }
+
     /// Pans the camera around the current z axis.
+    #[allow(dead_code)]
     pub fn pan(&mut self, x: f32, y: f32) {
         let look = (self.uniforms.target - self.camera_position()).normalized();
         let world_up = Vector3::new(0.0, self.up, 0.0);
@@ -237,6 +252,20 @@ impl PreviewCamera {
         let up = look.cross(right);
 
         self.uniforms.target += (right * x) + (up * y);
+    }
+
+    /// Pans the camera around the current z axis.
+    pub fn pan_smooth(&mut self, x: f32, y: f32) {
+        let look = (self.uniforms.target - self.camera_position()).normalized();
+        let world_up = Vector3::new(0.0, self.up, 0.0);
+
+        let right = look.cross(world_up);
+        let up = look.cross(right);
+
+        let x1 = x * (self.radius * 0.1);
+        let y1 = y * (self.radius * 0.1);
+
+        self.uniforms.target += (right * x1) + (up * y1);
     }
 
     /// Returns the camera position.

@@ -12,6 +12,7 @@ use porter_animation::AnimationFileType;
 use porter_audio::AudioFileType;
 use porter_model::ModelFileType;
 use porter_texture::ImageFileType;
+use porter_preview::PreviewControlScheme;
 
 #[derive(Debug, Decode, Encode, Clone, Copy)]
 struct PorterLoadSettings(u32);
@@ -69,12 +70,6 @@ pub enum ImageNormalMapProcessing {
     None,
     OpenGl,
     DirectX,
-}
-
-#[derive(Debug, Decode, Encode, Clone, Copy)]
-pub enum PreviewControlScheme {
-    Maya,
-    Blender,
 }
 
 #[derive(Debug, Decode, Encode, Clone, Copy, PartialEq, Eq)]
@@ -566,7 +561,7 @@ impl Default for PorterSettings {
             image_download_cdn: true,
             preview_download_cdn: false,
             output_directory: None,
-            preview_controls: PreviewControlScheme::Maya,
+            preview_controls: PreviewControlScheme::Simple,
             preview_overlay: true,
             auto_scale: true,
             far_clip: 10000,

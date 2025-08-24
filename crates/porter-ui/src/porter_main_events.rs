@@ -44,12 +44,11 @@ use crate::PorterPreviewAsset;
 use crate::PorterSearch;
 use crate::PorterSettings;
 use crate::PorterViewport;
-use crate::PreviewControlScheme;
 
 use crate::COLUMN_MAX;
 use crate::COLUMN_MIN;
 use crate::DOUBLE_CLICK_DURATION;
-use crate::PORTER_DONATE_URL;
+use crate::SALUKI_GITHUB_URL;
 use crate::PORTER_SITE_URL;
 use crate::ROW_HEIGHT;
 use crate::ROW_OVERSCAN;
@@ -235,7 +234,7 @@ impl PorterMain {
             previewer.mouse_move(
                 (delta_position.x, delta_position.y),
                 PreviewKeyState {
-                    maya: matches!(self.settings.preview_controls(), PreviewControlScheme::Maya),
+                    control_scheme: self.settings.preview_controls(),
                     left: matches!(self.mouse_button, Some(mouse::Button::Left)),
                     right: matches!(self.mouse_button, Some(mouse::Button::Right)),
                     middle: matches!(self.mouse_button, Some(mouse::Button::Middle)),
@@ -731,8 +730,8 @@ impl PorterMain {
         Command::none()
     }
 
-    pub fn on_donate(&mut self) -> Command<Message> {
-        // crate::open_url(PORTER_DONATE_URL);
+    pub fn on_github(&mut self) -> Command<Message> {
+        crate::open_url(SALUKI_GITHUB_URL);
 
         Command::none()
     }
