@@ -7,8 +7,8 @@ use iced::Length;
 use porter_animation::AnimationFileType;
 use porter_audio::AudioFileType;
 use porter_model::ModelFileType;
-use porter_texture::ImageFileType;
 use porter_preview::PreviewControlScheme;
+use porter_texture::ImageFileType;
 
 use crate::AssetSortOrder;
 use crate::ImageNormalMapProcessing;
@@ -163,46 +163,6 @@ impl PorterMain {
                 Message::SaveSettings(
                     self.settings
                         .update(|settings| settings.set_skip_previously_exported(value)),
-                )
-            })
-            .style(PorterCheckboxStyle)
-            .into(),
-            vertical_space().height(2.0).into(),
-        ]);
-
-        // TODO: Move to corresponding settings section later.
-        // The purpose of putting them here is just to facilitate repo merging later.
-        settings.extend([
-            vertical_space().height(2.0).into(),
-            text("Choose whether or not to download high-res images from CDN (Recommended):")
-                .style(PorterLabelStyle)
-                .into(),
-            vertical_space().height(0.0).into(),
-            checkbox(
-                "Download high-res images from CDN",
-                self.settings.image_download_cdn(),
-            )
-            .on_toggle(|value| {
-                Message::SaveSettings(
-                    self.settings
-                        .update(|settings| settings.set_image_download_cdn(value)),
-                )
-            })
-            .style(PorterCheckboxStyle)
-            .into(),
-            vertical_space().height(2.0).into(),
-            text("Choose whether or not to download high-res images from CDN when previewing:")
-                .style(PorterLabelStyle)
-                .into(),
-            vertical_space().height(0.0).into(),
-            checkbox(
-                "Download high-res images from CDN when previewing",
-                self.settings.preview_download_cdn(),
-            )
-            .on_toggle(|value| {
-                Message::SaveSettings(
-                    self.settings
-                        .update(|settings| settings.set_preview_download_cdn(value)),
                 )
             })
             .style(PorterCheckboxStyle)
@@ -426,6 +386,47 @@ impl PorterMain {
                 );
             }
         }
+
+        settings.extend([
+            vertical_space().height(2.0).into(),
+            text("(Recommended)")
+                .style(PorterLabelStyle)
+                .into(),
+            vertical_space().height(0.0).into(),
+            text("(If this option is not enabled, only the local cache will be exported, which is likely to be of low quality.)")
+                .style(PorterLabelWarningStyle)
+                .into(),
+            vertical_space().height(0.0).into(),
+            checkbox(
+                "Download high-res images",
+                self.settings.image_download_cdn(),
+            )
+            .on_toggle(|value| {
+                Message::SaveSettings(
+                    self.settings
+                        .update(|settings| settings.set_image_download_cdn(value)),
+                )
+            })
+            .style(PorterCheckboxStyle)
+            .into(),
+            vertical_space().height(2.0).into(),
+            text("(Not recommended. It will greatly reduce the preview speed)")
+                .style(PorterLabelWarningStyle)
+                .into(),
+            vertical_space().height(0.0).into(),
+            checkbox(
+                "Download high-res images when previewing",
+                self.settings.preview_download_cdn(),
+            )
+            .on_toggle(|value| {
+                Message::SaveSettings(
+                    self.settings
+                        .update(|settings| settings.set_preview_download_cdn(value)),
+                )
+            })
+            .style(PorterCheckboxStyle)
+            .into(),
+        ]);
 
         if self.normal_map_converter {
             settings.extend([
