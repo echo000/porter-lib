@@ -155,8 +155,12 @@ impl PorterMain {
             .style(PorterPickListStyle)
             .into(),
             vertical_space().height(4.0).into(),
+            text("Choose whether or not to skip previously exported assets:")
+                .style(PorterLabelStyle)
+                .into(),
+            vertical_space().height(0.0).into(),
             checkbox(
-                "Skip Previously Exported",
+                "Skip previously exported",
                 self.settings.skip_previously_exported(),
             )
             .on_toggle(|value| {
@@ -389,12 +393,8 @@ impl PorterMain {
 
         settings.extend([
             vertical_space().height(2.0).into(),
-            text("(Recommended)")
+            text("(Recommended. If this option is not enabled, only the local cache will be exported, which is likely to be of low quality)")
                 .style(PorterLabelStyle)
-                .into(),
-            vertical_space().height(0.0).into(),
-            text("(If this option is not enabled, only the local cache will be exported, which is likely to be of low quality)")
-                .style(PorterLabelWarningStyle)
                 .into(),
             vertical_space().height(0.0).into(),
             checkbox(
