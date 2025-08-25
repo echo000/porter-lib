@@ -393,7 +393,7 @@ impl PorterMain {
                 .style(PorterLabelStyle)
                 .into(),
             vertical_space().height(0.0).into(),
-            text("(If this option is not enabled, only the local cache will be exported, which is likely to be of low quality.)")
+            text("(If this option is not enabled, only the local cache will be exported, which is likely to be of low quality)")
                 .style(PorterLabelWarningStyle)
                 .into(),
             vertical_space().height(0.0).into(),
