@@ -11,8 +11,8 @@ use bitflags::bitflags;
 use porter_animation::AnimationFileType;
 use porter_audio::AudioFileType;
 use porter_model::ModelFileType;
-use porter_texture::ImageFileType;
 use porter_preview::PreviewControlScheme;
+use porter_texture::ImageFileType;
 
 #[derive(Debug, Decode, Encode, Clone, Copy)]
 struct PorterLoadSettings(u32);
@@ -96,8 +96,9 @@ pub struct PorterSettings {
     auto_scale: bool,
     far_clip: u32,
     lod_export: bool,
-    export_image_names: bool,
+    export_material_info: bool,
     export_material_folders: bool,
+    strip_material_dir: bool,
     log_assets: bool,
     skip_previously_exported: bool,
     asset_order: AssetSortOrder,
@@ -335,7 +336,7 @@ impl PorterSettings {
     /// Sets whether or not an anim file type is in use.
     pub fn set_anim_file_type(&mut self, file_type: AnimationFileType, value: bool) {
         let flag = match file_type {
-            AnimationFileType::SEAnim    => PorterAnimSettings::EXPORT_SEANIM_REMOVED,
+            AnimationFileType::SEAnim => PorterAnimSettings::EXPORT_SEANIM_REMOVED,
             AnimationFileType::Cast => PorterAnimSettings::EXPORT_CAST,
         };
 
@@ -476,12 +477,12 @@ impl PorterSettings {
         self.auto_scale = value;
     }
 
-    /// Whether or not lods are exported.
+    /// Whether or not LODs are exported.
     pub fn export_lods(&self) -> bool {
         self.lod_export
     }
 
-    /// Sets whether or not to export available lods.
+    /// Sets whether or not to export available LODs.
     pub fn set_export_lods(&mut self, value: bool) {
         self.lod_export = value;
     }
@@ -496,14 +497,14 @@ impl PorterSettings {
         self.skip_previously_exported = value;
     }
 
-    /// Whether or not lods are exported.
-    pub fn export_image_names(&self) -> bool {
-        self.export_image_names
+    /// Whether or not to export material info.
+    pub fn export_material_info(&self) -> bool {
+        self.export_material_info
     }
 
-    /// Sets whether or not to export available lods.
-    pub fn set_export_image_names(&mut self, value: bool) {
-        self.export_image_names = value;
+    /// Sets whether or not to export material info.
+    pub fn set_export_material_info(&mut self, value: bool) {
+        self.export_material_info = value;
     }
 
     /// Whether or not material images are exported into material folders.
@@ -514,6 +515,16 @@ impl PorterSettings {
     /// Sets whether or not material images are exported into material folders.
     pub fn set_export_material_folders(&mut self, value: bool) {
         self.export_material_folders = value;
+    }
+
+    /// Whether or not to strip directory from material path.
+    pub fn strip_material_dir(&self) -> bool {
+        self.strip_material_dir
+    }
+
+    /// Sets whether or not to strip directory from material path.
+    pub fn set_strip_material_dir(&mut self, value: bool) {
+        self.strip_material_dir = value;
     }
 
     /// Whether or not to log assets.
@@ -566,8 +577,9 @@ impl Default for PorterSettings {
             auto_scale: true,
             far_clip: 10000,
             lod_export: false,
-            export_image_names: true,
+            export_material_info: true,
             export_material_folders: true,
+            strip_material_dir: false,
             log_assets: false,
             asset_order: AssetSortOrder::Name,
             skip_previously_exported: true,

@@ -219,7 +219,7 @@ impl PorterMain {
                 .style(PorterLabelStyle)
                 .into(),
             vertical_space().height(2.0).into(),
-            text("Choose what to do with model lods:")
+            text("Choose what to do with model LODs:")
                 .style(PorterLabelStyle)
                 .into(),
             vertical_space().height(0.0).into(),
@@ -233,19 +233,10 @@ impl PorterMain {
                 .style(PorterCheckboxStyle)
                 .into(),
             vertical_space().height(2.0).into(),
-            text("Model Material Settings")
+            text("Model Material Settings:")
                 .style(PorterLabelStyle)
                 .into(),
             vertical_space().height(0.0).into(),
-            checkbox("Export image names", self.settings.export_image_names())
-                .on_toggle(|value| {
-                    Message::SaveSettings(
-                        self.settings
-                            .update(|settings| settings.set_export_image_names(value)),
-                    )
-                })
-                .style(PorterCheckboxStyle)
-                .into(),
             checkbox(
                 "Export images into material folders",
                 self.settings.export_material_folders(),
@@ -464,6 +455,47 @@ impl PorterMain {
             ]);
         } else {
             settings.push(vertical_space().height(4.0).into());
+        }
+
+        {
+            settings.extend([
+                text("Settings - Materials")
+                    .size(20.0)
+                    .style(PorterLabelStyle)
+                    .into(),
+                vertical_space().height(2.0).into(),
+                text("Choose whether or not to export material info:")
+                    .style(PorterLabelStyle)
+                    .into(),
+                vertical_space().height(0.0).into(),
+                checkbox("Export material info", self.settings.export_material_info())
+                    .on_toggle(|value| {
+                        Message::SaveSettings(
+                            self.settings
+                                .update(|settings| settings.set_export_material_info(value)),
+                        )
+                    })
+                    .style(PorterCheckboxStyle)
+                    .into(),
+                vertical_space().height(2.0).into(),
+                text("Choose whether or not to strip directory from material path:")
+                    .style(PorterLabelStyle)
+                    .into(),
+                vertical_space().height(0.0).into(),
+                checkbox(
+                    "Strip directory from material path",
+                    self.settings.strip_material_dir(),
+                )
+                .on_toggle(|value| {
+                    Message::SaveSettings(
+                        self.settings
+                            .update(|settings| settings.set_strip_material_dir(value)),
+                    )
+                })
+                .style(PorterCheckboxStyle)
+                .into(),
+                vertical_space().height(4.0).into(),
+            ]);
         }
 
         if self.animations_enabled {
