@@ -124,11 +124,7 @@ pub fn to_xna_lara<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), ModelEr
         writeln!(xna, "{}", mesh.faces.len())?;
 
         for face in &mesh.faces {
-            writeln!(
-                xna,
-                "{} {} {}",
-                face.i1 as i16, face.i2 as i16, face.i3 as i16
-            )?;
+            writeln!(xna, "{} {} {}", { face.i1 }, { face.i2 }, { face.i3 })?;
         }
     }
 
