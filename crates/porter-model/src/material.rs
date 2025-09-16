@@ -80,7 +80,7 @@ fn sanitize_material_name(name: &str) -> String {
     if name == "default" || name.is_empty() {
         name = String::from("_default");
     } else if name.as_bytes()[0].is_ascii_digit() {
-        name = format!("_{}", name);
+        name = format!("_{name}");
     }
 
     name
