@@ -27,8 +27,8 @@ pub use packed_10_2_vector4::*;
 pub use packed_i8_vector4::*;
 pub use packed_u8_vector4::*;
 pub use quaternion::*;
-pub use quaternion_spline::*;
 pub use quaternion2::*;
+pub use quaternion_spline::*;
 pub use rect::*;
 pub use rmatrix4x4::*;
 pub use vector2::*;
@@ -50,18 +50,18 @@ pub fn radians_to_degrees(value: f32) -> f32 {
 
 /// Normalizes a f32 array.
 pub fn normalize_array_f32<const SIZE: usize>(mut array: [f32; SIZE]) -> [f32; SIZE] {
-    let mut length_sq: f32 = 0.0;
+    let mut sum: f32 = 0.0;
 
     #[allow(clippy::needless_range_loop)]
     for i in 0..SIZE {
-        length_sq += array[i] * array[i];
+        sum += array[i];
     }
 
-    let length = length_sq.sqrt();
-
-    #[allow(clippy::needless_range_loop)]
-    for i in 0..SIZE {
-        array[i] /= length;
+    if sum > f32::EPSILON {
+        #[allow(clippy::needless_range_loop)]
+        for i in 0..SIZE {
+            array[i] /= sum;
+        }
     }
 
     array
