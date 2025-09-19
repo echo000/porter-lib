@@ -1,7 +1,5 @@
 use std::num::ParseIntError;
 
-use porter_utils::HashFnv1a;
-
 /// Ways to filter on a number range.
 #[derive(Debug, Clone, Copy)]
 struct SearchRange {
@@ -195,57 +193,6 @@ impl SearchTerm {
                 }
                 SearchName::NotContained(name) => {
                     if asset_name.contains(name.as_str()) {
-                        return false;
-                    }
-                }
-            }
-        }
-
-        true
-    }
-
-    /// Determines if the given asset matches this search command.
-    #[inline(always)]
-    pub fn matches_with_hash(&self, asset: SearchAsset, offset: u64, prime: u64) -> bool {
-        if asset.bone_count > self.bone_count.max || asset.bone_count < self.bone_count.min {
-            return false;
-        }
-        if asset.mesh_count > self.mesh_count.max || asset.mesh_count < self.mesh_count.min {
-            return false;
-        }
-        if asset.frame_count > self.frame_count.max || asset.frame_count < self.frame_count.min {
-            return false;
-        }
-        if asset.frame_rate > self.frame_rate.max || asset.frame_rate < self.frame_rate.min {
-            return false;
-        }
-        if asset.width > self.width.max || asset.width < self.width.min {
-            return false;
-        }
-        if asset.height > self.height.max || asset.height < self.height.min {
-            return false;
-        }
-
-        let asset_name = asset.name.to_lowercase();
-
-        let mut names = self.search_names.iter();
-
-        while let Some(Some(name)) = names.next() {
-            match name {
-                SearchName::Contained(name) => {
-                    let hash = name.hash_fnv1a(offset, prime) & 0x7FFFFFFFFFFFFFFF;
-                    let hash_str = format!("{hash:x}");
-                    if !asset_name.contains(name.as_str())
-                        && !asset_name.contains(hash_str.as_str())
-                    {
-                        return false;
-                    }
-                }
-                SearchName::NotContained(name) => {
-                    let hash = name.hash_fnv1a(offset, prime) & 0x7FFFFFFFFFFFFFFF;
-                    let hash_str = format!("{hash:x}");
-                    if asset_name.contains(name.as_str()) || asset_name.contains(hash_str.as_str())
-                    {
                         return false;
                     }
                 }

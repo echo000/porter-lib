@@ -3,9 +3,7 @@ use porter_model::Model;
 
 use porter_texture::Image;
 
-//use porter_audio::Audio;
-
-/// An asset which is ready to be previewed.
+/// The result of an assets data to be previewed.
 #[derive(Debug, Clone)]
 pub enum AssetPreview {
     /// This asset type doesn't support preview.
@@ -20,6 +18,4 @@ pub enum AssetPreview {
     Model(String, Model, Vec<Option<Image>>),
     /// A material asset for preview.
     Material(String, Vec<(MaterialTextureRefUsage, Image)>),
-    // An audio asset for preview.
-    //Audio(String, Audio),
 }

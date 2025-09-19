@@ -31,6 +31,7 @@ Cargo.lock
 crates/porter-oodle/
 crates/porter-audio/data/*
 crates/porter-texture/textures/*
+
 # IDE generated files
 .idea
 .vscode

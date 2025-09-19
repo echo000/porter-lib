@@ -74,12 +74,6 @@ pub enum ImageNormalMapProcessing {
     DirectX,
 }
 
-#[derive(Debug, Decode, Encode, Clone, Copy, PartialEq, Eq)]
-pub enum AssetSortOrder {
-    None,
-    Name,
-}
-
 /// Control scheme for preview viewport.
 #[derive(Debug, Decode, Encode, Clone, Copy)]
 pub enum PreviewControlScheme {
@@ -97,8 +91,6 @@ pub struct Settings {
     audio_settings: AudioSettings,
     image_file_type: ImageFileType,
     image_normal_map_processing: ImageNormalMapProcessing,
-    image_download_cdn: bool,
-    preview_download_cdn: bool,
     output_directory: Option<PathBuf>,
     preview_controls: PreviewControlScheme,
     preview_overlay: bool,
@@ -106,13 +98,6 @@ pub struct Settings {
     far_clip: u32,
     preview_window: bool,
     custom_scale: Option<f32>,
-    lod_export: bool,
-    export_material_info: bool,
-    export_material_folders: bool,
-    strip_material_dir: bool,
-    log_assets: bool,
-    skip_previously_exported: bool,
-    asset_order: AssetSortOrder,
 }
 
 impl Settings {
@@ -139,7 +124,7 @@ impl Settings {
 
     /// Saves the settings to the disk at the given path.
     pub fn save<S: Into<String>>(&self, name: S) {
-        let Some(project_directory) = ProjectDirs::from("com", "", "Saluki") else {
+        let Some(project_directory) = ProjectDirs::from("com", "DTZxPorter", "GameTools") else {
             return;
         };
 
@@ -173,7 +158,6 @@ impl Settings {
             || self.load_sounds() != new_settings.load_sounds()
             || self.load_raw_files() != new_settings.load_raw_files()
             || self.force_raw_files() != new_settings.force_raw_files()
-            || self.asset_sorting() != new_settings.asset_sorting()
         {
             return true;
         }
@@ -375,26 +359,6 @@ impl Settings {
         self.image_normal_map_processing = processing;
     }
 
-    /// Whether or not to download high-res images from CDN.
-    pub fn image_download_cdn(&self) -> bool {
-        self.image_download_cdn
-    }
-
-    /// Sets whether or not to download high-res images from CDN.
-    pub fn set_image_download_cdn(&mut self, value: bool) {
-        self.image_download_cdn = value;
-    }
-
-    /// Whether or not to download high-res images from CDN when previewing.
-    pub fn preview_download_cdn(&self) -> bool {
-        self.preview_download_cdn
-    }
-
-    /// Sets whether or not to download high-res images from CDN when previewing.
-    pub fn set_preview_download_cdn(&mut self, value: bool) {
-        self.preview_download_cdn = value;
-    }
-
     /// An output directory used to save assets.
     pub fn output_directory(&self) -> PathBuf {
         if let Some(output_directory) = self.output_directory.clone() {
@@ -440,16 +404,6 @@ impl Settings {
         self.preview_controls = controls;
     }
 
-    /// Gets the asset sorting order.
-    pub fn asset_sorting(&self) -> AssetSortOrder {
-        self.asset_order
-    }
-
-    /// Sets the asset sorting order.
-    pub fn set_asset_sorting(&mut self, order: AssetSortOrder) {
-        self.asset_order = order;
-    }
-
     /// Whether or not to show the preview overlay hints.
     pub fn preview_overlay(&self) -> bool {
         self.preview_overlay
@@ -468,66 +422,6 @@ impl Settings {
     /// Sets whether or not to automatically scale models and animations.
     pub fn set_auto_scale(&mut self, value: bool) {
         self.auto_scale = value;
-    }
-
-    /// Whether or not LODs are exported.
-    pub fn export_lods(&self) -> bool {
-        self.lod_export
-    }
-
-    /// Sets whether or not to export available LODs.
-    pub fn set_export_lods(&mut self, value: bool) {
-        self.lod_export = value;
-    }
-
-    /// Whether or not to skip existing items.
-    pub fn skip_previously_exported(&self) -> bool {
-        self.skip_previously_exported
-    }
-
-    /// Sets whether or not to skip existing items.
-    pub fn set_skip_previously_exported(&mut self, value: bool) {
-        self.skip_previously_exported = value;
-    }
-
-    /// Whether or not to export material info.
-    pub fn export_material_info(&self) -> bool {
-        self.export_material_info
-    }
-
-    /// Sets whether or not to export material info.
-    pub fn set_export_material_info(&mut self, value: bool) {
-        self.export_material_info = value;
-    }
-
-    /// Whether or not material images are exported into material folders.
-    pub fn export_material_folders(&self) -> bool {
-        self.export_material_folders
-    }
-
-    /// Sets whether or not material images are exported into material folders.
-    pub fn set_export_material_folders(&mut self, value: bool) {
-        self.export_material_folders = value;
-    }
-
-    /// Whether or not to strip directory from material path.
-    pub fn strip_material_dir(&self) -> bool {
-        self.strip_material_dir
-    }
-
-    /// Sets whether or not to strip directory from material path.
-    pub fn set_strip_material_dir(&mut self, value: bool) {
-        self.strip_material_dir = value;
-    }
-
-    /// Whether or not to log assets.
-    pub fn log_assets(&self) -> bool {
-        self.log_assets
-    }
-
-    /// Sets whether or not to log assets.
-    pub fn set_log_assets(&mut self, value: bool) {
-        self.log_assets = value;
     }
 
     /// Gets the far clip distance for preview.
@@ -595,15 +489,6 @@ impl Default for Settings {
             far_clip: 10000,
             preview_window: false,
             custom_scale: None,
-            lod_export: false,
-            export_material_info: true,
-            export_material_folders: true,
-            strip_material_dir: false,
-            log_assets: false,
-            asset_order: AssetSortOrder::Name,
-            skip_previously_exported: true,
-            image_download_cdn: true,
-            preview_download_cdn: false,
         }
     }
 }
