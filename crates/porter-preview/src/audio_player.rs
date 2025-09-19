@@ -37,19 +37,23 @@ impl AudioPlayer {
     }
 
     pub fn play_new(&mut self, audio: Audio) {
-        // // Clear the old ones
-        // self.sink.clear();
+        // Clear the old ones
+        self.sink.clear();
 
-        // // Load the audio
-        // let samples = unsafe { audio.samples.align_to::<i16>().1.to_vec() };
+        // Load the audio
+        let samples = unsafe { audio.data().align_to::<i16>().1.to_vec() };
 
-        // let source = rodio::buffer::SamplesBuffer::new(audio.channel_count, audio.frame_rate, samples);
+        let source = rodio::buffer::SamplesBuffer::new(
+            audio.channels() as u16,
+            audio.sample_rate(),
+            samples,
+        );
 
-        // self.total_duration = source.total_duration();
+        self.total_duration = source.total_duration();
 
-        // // Play the new one
-        // self.sink.append(source);
-        // self.play();
+        // Play the new one
+        self.sink.append(source);
+        self.play();
     }
 
     pub fn pos(&self) -> Option<f64> {
