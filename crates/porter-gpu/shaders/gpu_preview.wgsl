@@ -111,7 +111,7 @@ fn fs_main_full(in: VertexOutput, culling: bool) -> vec4<f32> {
     } else if camera.srgb == 1u {
         return vec4<f32>((ambient + diffuse) * linear_to_srgb(textureSample(t_albedo, s_albedo, in.uv).xyz), 1.0);
     } else {
-        return vec4<f32>((ambient + diffuse) * linear_to_srgb(textureSample(t_albedo, s_albedo, in.uv).xyz), 1.0);
+        return vec4<f32>((ambient + diffuse) * textureSample(t_albedo, s_albedo, in.uv).xyz, 1.0);
     }
 }
 
