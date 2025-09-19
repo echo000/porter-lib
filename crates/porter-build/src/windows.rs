@@ -52,7 +52,7 @@ pub fn configure<I: Into<String>>(icon: I, admin: bool) -> io::Result<()> {
 
     let zip_path = project
         .join("releases")
-        .join(format!("{}-v{}.zip", name_uppercase, version))
+        .join(format!("{name_uppercase}-v{version}.zip"))
         .display()
         .to_string();
 

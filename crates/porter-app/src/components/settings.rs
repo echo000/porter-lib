@@ -723,5 +723,5 @@ impl Settings {
 
 /// Formats a custom scale factor.
 fn format_custom_scale(scale: f32) -> String {
-    format!("{:?}", scale)
+    format!("{scale:?}")
 }

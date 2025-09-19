@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use rodio::{source::SeekError, OutputStream, Sink, Source};
+use rodio::{OutputStream, Sink, Source, source::SeekError};
 
 use porter_audio::Audio;
 
@@ -37,19 +37,19 @@ impl AudioPlayer {
     }
 
     pub fn play_new(&mut self, audio: Audio) {
-        // Clear the old ones
-        self.sink.clear();
+        // // Clear the old ones
+        // self.sink.clear();
 
-        // Load the audio
-        let samples = unsafe { audio.samples.align_to::<i16>().1.to_vec() };
+        // // Load the audio
+        // let samples = unsafe { audio.samples.align_to::<i16>().1.to_vec() };
 
-        let source = rodio::buffer::SamplesBuffer::new(audio.channel_count, audio.frame_rate, samples);
+        // let source = rodio::buffer::SamplesBuffer::new(audio.channel_count, audio.frame_rate, samples);
 
-        self.total_duration = source.total_duration();
+        // self.total_duration = source.total_duration();
 
-        // Play the new one
-        self.sink.append(source);
-        self.play();
+        // // Play the new one
+        // self.sink.append(source);
+        // self.play();
     }
 
     pub fn pos(&self) -> Option<f64> {
@@ -74,7 +74,9 @@ impl AudioPlayer {
             let pos = Self::duration_mul_f32(total_duration, percent);
             self.sink.try_seek(pos)
         } else {
-            Err(SeekError::NotSupported { underlying_source: "Failed to get audio duration to seek" })
+            Err(SeekError::NotSupported {
+                underlying_source: "Failed to get audio duration to seek",
+            })
         }
     }
 

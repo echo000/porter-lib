@@ -206,7 +206,7 @@ impl SearchTerm {
 
     /// Determines if the given asset matches this search command.
     #[inline(always)]
-    pub fn matches_with_hash(&self, asset: PorterSearchAsset, offset: u64, prime: u64) -> bool {
+    pub fn matches_with_hash(&self, asset: SearchAsset, offset: u64, prime: u64) -> bool {
         if asset.bone_count > self.bone_count.max || asset.bone_count < self.bone_count.min {
             return false;
         }
@@ -226,23 +226,25 @@ impl SearchTerm {
             return false;
         }
 
+        let asset_name = asset.name.to_lowercase();
+
         let mut names = self.search_names.iter();
 
         while let Some(Some(name)) = names.next() {
             match name {
-                PorterSearchName::Contained(name) => {
+                SearchName::Contained(name) => {
                     let hash = name.hash_fnv1a(offset, prime) & 0x7FFFFFFFFFFFFFFF;
                     let hash_str = format!("{hash:x}");
-                    if !asset.name.contains(name.as_str())
-                        && !asset.name.contains(hash_str.as_str())
+                    if !asset_name.contains(name.as_str())
+                        && !asset_name.contains(hash_str.as_str())
                     {
                         return false;
                     }
                 }
-                PorterSearchName::NotContained(name) => {
+                SearchName::NotContained(name) => {
                     let hash = name.hash_fnv1a(offset, prime) & 0x7FFFFFFFFFFFFFFF;
                     let hash_str = format!("{hash:x}");
-                    if asset.name.contains(name.as_str()) || asset.name.contains(hash_str.as_str())
+                    if asset_name.contains(name.as_str()) || asset_name.contains(hash_str.as_str())
                     {
                         return false;
                     }

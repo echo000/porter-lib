@@ -13,7 +13,6 @@ use bitflags::bitflags;
 use porter_animation::AnimationFileType;
 use porter_audio::AudioFileType;
 use porter_model::ModelFileType;
-use porter_preview::PreviewControlScheme;
 use porter_texture::ImageFileType;
 
 #[derive(Debug, Decode, Encode, Clone, Copy)]
@@ -75,6 +74,12 @@ pub enum ImageNormalMapProcessing {
     DirectX,
 }
 
+#[derive(Debug, Decode, Encode, Clone, Copy, PartialEq, Eq)]
+pub enum AssetSortOrder {
+    None,
+    Name,
+}
+
 /// Control scheme for preview viewport.
 #[derive(Debug, Decode, Encode, Clone, Copy)]
 pub enum PreviewControlScheme {
@@ -101,6 +106,13 @@ pub struct Settings {
     far_clip: u32,
     preview_window: bool,
     custom_scale: Option<f32>,
+    lod_export: bool,
+    export_material_info: bool,
+    export_material_folders: bool,
+    strip_material_dir: bool,
+    log_assets: bool,
+    skip_previously_exported: bool,
+    asset_order: AssetSortOrder,
 }
 
 impl Settings {
@@ -577,12 +589,21 @@ impl Default for Settings {
             image_file_type: ImageFileType::Png,
             image_normal_map_processing: ImageNormalMapProcessing::OpenGl,
             output_directory: None,
-            preview_controls: PreviewControlScheme::Simple,
+            preview_controls: PreviewControlScheme::Maya,
             preview_overlay: true,
             auto_scale: true,
             far_clip: 10000,
             preview_window: false,
             custom_scale: None,
+            lod_export: false,
+            export_material_info: true,
+            export_material_folders: true,
+            strip_material_dir: false,
+            log_assets: false,
+            asset_order: AssetSortOrder::Name,
+            skip_previously_exported: true,
+            image_download_cdn: true,
+            preview_download_cdn: false,
         }
     }
 }

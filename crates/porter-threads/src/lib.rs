@@ -118,7 +118,7 @@ pub fn initialize_thread_pool() {
                     .unwrap_or_default()
                     .max(4),
             )
-            .thread_name(|index| format!("porter-thread[{}]", index))
+            .thread_name(|index| format!("porter-thread[{index}]"))
             .build_global();
 
         debug_assert!(result.is_ok());
