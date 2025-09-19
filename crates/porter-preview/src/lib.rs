@@ -1,5 +1,6 @@
 // #![deny(unsafe_code)] // TODO: Disable it temporarily :(
 
+mod error;
 mod preview_camera;
 mod preview_key_state;
 mod preview_renderer;
@@ -12,6 +13,7 @@ mod render_skeleton;
 mod render_type;
 mod audio_player;
 
+pub use error::*;
 pub use preview_key_state::*;
 pub use preview_renderer::*;
 pub use audio_player::*;

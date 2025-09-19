@@ -67,10 +67,10 @@ pub fn download_memory(client: HttpClient) -> Result<(Vec<u8>, String), io::Erro
             }
         }
 
-        if let Some(timeout) = timeout {
-            if start.elapsed() > timeout {
-                return Err(io::Error::from(io::ErrorKind::TimedOut));
-            }
+        if let Some(timeout) = timeout
+            && start.elapsed() > timeout
+        {
+            return Err(io::Error::from(io::ErrorKind::TimedOut));
         }
     }
 
@@ -112,10 +112,10 @@ pub fn download_file(client: HttpClient, path: &Path) -> Result<(), io::Error> {
             }
         }
 
-        if let Some(timeout) = timeout {
-            if start.elapsed() > timeout {
-                return Err(io::Error::from(io::ErrorKind::TimedOut));
-            }
+        if let Some(timeout) = timeout
+            && start.elapsed() > timeout
+        {
+            return Err(io::Error::from(io::ErrorKind::TimedOut));
         }
     }
 
@@ -267,18 +267,16 @@ fn create_request(
         )
     };
 
-    if client.enable_decompression {
-        let decompression_flags: u32 = WINHTTP_DECOMPRESSION_FLAG_DEFLATE | WINHTTP_DECOMPRESSION_FLAG_GZIP;
+    let decompress: u32 = WINHTTP_DECOMPRESSION_FLAG_DEFLATE | WINHTTP_DECOMPRESSION_FLAG_GZIP;
 
-        unsafe {
-            WinHttpSetOption(
-                *request,
-                WINHTTP_OPTION_DECOMPRESSION,
-                &decompression_flags as *const u32 as _,
-                size_of_val(&decompression_flags) as _,
-            )
-        };
-    }
+    unsafe {
+        WinHttpSetOption(
+            *request,
+            WINHTTP_OPTION_DECOMPRESSION,
+            &decompress as *const u32 as _,
+            size_of_val(&decompress) as _,
+        )
+    };
 
     let mut headers: Vec<String> = Vec::new();
 
@@ -292,12 +290,6 @@ fn create_request(
 
     if !client.authorization.is_empty() {
         headers.push(client.authorization);
-    }
-
-    if !client.headers.is_empty() {
-        for header in &client.headers {
-            headers.push(format!("{}: {}", header.0, header.1));
-        }
     }
 
     if !headers.is_empty() {
@@ -413,21 +405,32 @@ fn make_request(request: &Request) -> Result<(String, f64), io::Error> {
         .to_string_lossy()
         .to_lowercase();
 
-    let mut content_length: u64 = 0;
-    let mut content_length_length: u32 =  size_of_val(&content_length) as _;
+    let mut content_length: [u16; 64] = [0; 64];
+    let mut content_length_length: u32 = content_length.len() as u32 * 2;
 
-    unsafe {
+    let result = unsafe {
         WinHttpQueryHeaders(
             *request.request,
-            WINHTTP_QUERY_CONTENT_LENGTH | WINHTTP_QUERY_FLAG_NUMBER,
+            WINHTTP_QUERY_CONTENT_LENGTH,
             std::ptr::null(),
-            &mut content_length as *mut u64 as _,
+            content_length.as_mut_ptr() as _,
             &mut content_length_length,
             std::ptr::null_mut(),
         )
     };
 
-    Ok((content_type, content_length as f64))
+    if result == 0 {
+        content_length_length = 0;
+    }
+
+    let content_length = &content_length[0..content_length_length as usize / 2];
+    let content_length: f64 = OsString::from_wide(content_length)
+        .to_string_lossy()
+        .trim()
+        .parse()
+        .unwrap_or_default();
+
+    Ok((content_type, content_length))
 }
 
 /// Reads a block of data from a request response body.

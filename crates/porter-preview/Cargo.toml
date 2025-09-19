@@ -1,15 +1,16 @@
 [package]
 name = "porter-preview"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [dependencies]
-wgpu = { version = "0.19.4", default-features = false, features = ["wgsl"] }
 porter-utils = { path = "../porter-utils" }
 porter-gpu = { path = "../porter-gpu" }
 porter-model = { path = "../porter-model" }
 porter-math = { path = "../porter-math" }
 porter-texture = { path = "../porter-texture" }
+
+wgpu.workspace = true
 porter-audio = { path = "../porter-audio" }
 bincode = { version = "2.0.0-rc.3", default-features = false, features = ["std", "derive"] }
 rodio = "0.20.1"
