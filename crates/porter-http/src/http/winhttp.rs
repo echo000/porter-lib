@@ -267,16 +267,18 @@ fn create_request(
         )
     };
 
-    let decompress: u32 = WINHTTP_DECOMPRESSION_FLAG_DEFLATE | WINHTTP_DECOMPRESSION_FLAG_GZIP;
+    if client.enable_decompression {
+        let decompress: u32 = WINHTTP_DECOMPRESSION_FLAG_DEFLATE | WINHTTP_DECOMPRESSION_FLAG_GZIP;
 
-    unsafe {
-        WinHttpSetOption(
-            *request,
-            WINHTTP_OPTION_DECOMPRESSION,
-            &decompress as *const u32 as _,
-            size_of_val(&decompress) as _,
-        )
-    };
+        unsafe {
+            WinHttpSetOption(
+                *request,
+                WINHTTP_OPTION_DECOMPRESSION,
+                &decompress as *const u32 as _,
+                size_of_val(&decompress) as _,
+            )
+        };
+    }
 
     let mut headers: Vec<String> = Vec::new();
 
@@ -290,6 +292,12 @@ fn create_request(
 
     if !client.authorization.is_empty() {
         headers.push(client.authorization);
+    }
+
+    if !client.headers.is_empty() {
+        for header in &client.headers {
+            headers.push(format!("{}: {}", header.0, header.1));
+        }
     }
 
     if !headers.is_empty() {
