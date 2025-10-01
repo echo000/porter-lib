@@ -1,5 +1,3 @@
-use std::cmp::Ordering;
-
 use wgpu::util::*;
 use wgpu::*;
 
