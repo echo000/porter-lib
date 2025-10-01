@@ -246,10 +246,7 @@ impl PreviewCamera {
 
         let target = self.radius - distance * (self.radius * 0.1);
 
-        match target.partial_cmp(&MIN_RADIUS) {
-            Some(Ordering::Less) => self.radius = MIN_RADIUS,
-            _ => self.radius = target,
-        }
+        self.radius = target.max(MIN_RADIUS);
     }
 
     /// Pans the camera around the current z axis.
@@ -274,10 +271,9 @@ impl PreviewCamera {
         let right = look.cross(world_up);
         let up = look.cross(right);
 
-        let x1 = x * (self.radius * 0.1);
-        let y1 = y * (self.radius * 0.1);
+        let scale = self.radius * 0.1;
 
-        self.uniforms.target += (right * x1) + (up * y1);
+        self.uniforms.target += ((right * x) + (up * y)) * scale;
     }
 
     /// Returns the camera position.

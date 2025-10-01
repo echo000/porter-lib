@@ -21,6 +21,7 @@ use porter_texture::Image;
 use porter_texture::TextureExtensions;
 
 use crate::PreviewCamera;
+use crate::PreviewControlScheme;
 use crate::PreviewError;
 use crate::PreviewKeyState;
 use crate::RenderImage;
@@ -516,7 +517,7 @@ impl PreviewRenderer {
             self.camera
                 .set_orthographic_scale(self.scale as f32 / 100.0);
         } else {
-            self.camera.zoom(delta * 0.5);
+            self.camera.zoom_smooth(delta * 1.1);
         }
 
         self.update_camera();
@@ -526,50 +527,81 @@ impl PreviewRenderer {
     pub fn mouse_move<D: Into<Vector2>>(&mut self, delta: D, key_state: PreviewKeyState) {
         let delta = delta.into();
 
-        if key_state.maya && !key_state.alt {
-            return;
-        }
+        const ROTATE_SPEED: f32 = 1.0 / 200.0;
+        const ZOOM_SPEED: f32 = 0.3;
+        // const PAN_SPEED: f32 = 0.15;
+        const PAN_SMOOTH_SPEED: f32 = 1.0 / 80.0;
 
         let mut dirty = false;
 
-        if key_state.maya {
-            if key_state.left {
-                let phi = delta.y / 200.0;
-                let theta = delta.x / 200.0;
+        match key_state.control_scheme {
+            PreviewControlScheme::Simple => {
+                if key_state.left {
+                    let phi = delta.y * ROTATE_SPEED;
+                    let theta = delta.x * ROTATE_SPEED;
 
-                self.camera.rotate(theta, phi);
+                    self.camera.rotate(theta, phi);
 
-                dirty = true;
-            } else if key_state.right {
-                self.camera.zoom(-(delta.x / 2.0));
+                    dirty = true;
+                } else if key_state.right {
+                    self.camera.zoom(-((delta.x + delta.y) * ZOOM_SPEED));
 
-                dirty = true;
-            } else if key_state.middle {
-                let x = delta.x * 0.1;
-                let y = delta.y * 0.1;
+                    dirty = true;
+                } else if key_state.middle {
+                    let x = delta.x * PAN_SMOOTH_SPEED;
+                    let y = delta.y * PAN_SMOOTH_SPEED;
 
-                self.camera.pan(x, y);
+                    self.camera.pan_smooth(x, y);
 
-                dirty = true;
+                    dirty = true;
+                }
             }
-        } else if key_state.middle && key_state.shift {
-            let x = delta.x * 0.1;
-            let y = delta.y * 0.1;
+            PreviewControlScheme::Maya => {
+                if !key_state.alt {
+                    return;
+                }
 
-            self.camera.pan(x, y);
+                if key_state.left {
+                    let phi = delta.y * ROTATE_SPEED;
+                    let theta = delta.x * ROTATE_SPEED;
 
-            dirty = true;
-        } else if key_state.middle && key_state.alt {
-            self.camera.zoom(-(delta.x / 2.0));
+                    self.camera.rotate(theta, phi);
 
-            dirty = true;
-        } else if key_state.middle {
-            let phi = delta.y / 200.0;
-            let theta = delta.x / 200.0;
+                    dirty = true;
+                } else if key_state.right {
+                    self.camera.zoom(-((delta.x + delta.y) * ZOOM_SPEED));
 
-            self.camera.rotate(theta, phi);
+                    dirty = true;
+                } else if key_state.middle {
+                    let x = delta.x * PAN_SMOOTH_SPEED;
+                    let y = delta.y * PAN_SMOOTH_SPEED;
 
-            dirty = true;
+                    self.camera.pan_smooth(x, y);
+
+                    dirty = true;
+                }
+            }
+            PreviewControlScheme::Blender => {
+                if key_state.middle && key_state.shift {
+                    let x = delta.x * PAN_SMOOTH_SPEED;
+                    let y = delta.y * PAN_SMOOTH_SPEED;
+
+                    self.camera.pan_smooth(x, y);
+
+                    dirty = true;
+                } else if key_state.middle && key_state.alt {
+                    self.camera.zoom(-((delta.x + delta.y) * ZOOM_SPEED));
+
+                    dirty = true;
+                } else if key_state.middle {
+                    let phi = delta.y * ROTATE_SPEED;
+                    let theta = delta.x * ROTATE_SPEED;
+
+                    self.camera.rotate(theta, phi);
+
+                    dirty = true;
+                }
+            }
         }
 
         if dirty {

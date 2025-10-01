@@ -11,12 +11,12 @@ use iced::Task;
 use directories::ProjectDirs;
 
 use porter_model::ModelFileType;
+use porter_preview::PreviewControlScheme;
 use porter_texture::ImageFileType;
 
 use crate::AppState;
 use crate::MainMessage;
 use crate::Message;
-use crate::PreviewControlScheme;
 use crate::palette;
 use crate::system;
 use crate::widgets;
@@ -502,13 +502,15 @@ impl Settings {
                 .into(),
             vertical_space().height(0.0).into(),
             widgets::pick_list(
-                vec!["Autodesk Maya", "Blender"],
+                vec!["Simple", "Autodesk Maya", "Blender"],
                 match state.settings.preview_controls() {
+                    PreviewControlScheme::Simple => Some("Simple"),
                     PreviewControlScheme::Maya => Some("Autodesk Maya"),
                     PreviewControlScheme::Blender => Some("Blender"),
                 },
                 move |selected| {
                     let controls = match selected {
+                        "Simple" => PreviewControlScheme::Simple,
                         "Autodesk Maya" => PreviewControlScheme::Maya,
                         "Blender" => PreviewControlScheme::Blender,
                         _ => PreviewControlScheme::Maya,

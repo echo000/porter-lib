@@ -13,6 +13,7 @@ use bitflags::bitflags;
 use porter_animation::AnimationFileType;
 use porter_audio::AudioFileType;
 use porter_model::ModelFileType;
+use porter_preview::PreviewControlScheme;
 use porter_texture::ImageFileType;
 
 #[derive(Debug, Decode, Encode, Clone, Copy)]
@@ -72,13 +73,6 @@ pub enum ImageNormalMapProcessing {
     None,
     OpenGl,
     DirectX,
-}
-
-/// Control scheme for preview viewport.
-#[derive(Debug, Decode, Encode, Clone, Copy)]
-pub enum PreviewControlScheme {
-    Maya,
-    Blender,
 }
 
 /// Global application settings.
@@ -483,7 +477,7 @@ impl Default for Settings {
             image_file_type: ImageFileType::Png,
             image_normal_map_processing: ImageNormalMapProcessing::OpenGl,
             output_directory: None,
-            preview_controls: PreviewControlScheme::Maya,
+            preview_controls: PreviewControlScheme::Simple,
             preview_overlay: true,
             auto_scale: true,
             far_clip: 10000,

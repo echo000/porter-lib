@@ -29,10 +29,10 @@ use iced::Rectangle;
 use iced::Size;
 use iced::Vector;
 
+use porter_preview::PreviewControlScheme;
 use porter_preview::PreviewKeyState;
 use porter_preview::PreviewRenderer;
 
-use crate::PreviewControlScheme;
 use crate::palette;
 
 /// Preview viewport rendering widget.
@@ -349,7 +349,7 @@ impl ViewportState {
                 self.renderer.mouse_move(
                     (delta.x, delta.y),
                     PreviewKeyState {
-                        maya: matches!(control_scheme, PreviewControlScheme::Maya),
+                        control_scheme,
                         left: matches!(mouse_button, Some(mouse::Button::Left)),
                         right: matches!(mouse_button, Some(mouse::Button::Right)),
                         middle: matches!(mouse_button, Some(mouse::Button::Middle)),
