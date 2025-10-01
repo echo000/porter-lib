@@ -29,6 +29,7 @@ pub struct PreviewCamera {
     theta: f32,
     phi: f32,
     radius: f32,
+    fov_deg: f32,
     up: f32,
     uniforms: PreviewCameraUniform,
     uniform_buffer: Buffer,
@@ -39,7 +40,7 @@ pub struct PreviewCamera {
 
 impl PreviewCamera {
     /// Constructs a new preview camera instance.
-    pub fn new(instance: &GPUInstance, theta: f32, phi: f32, radius: f32) -> Self {
+    pub fn new(instance: &GPUInstance, theta: f32, phi: f32, radius: f32, fov_deg: f32) -> Self {
         let uniforms = PreviewCameraUniform {
             target: Vector3::zero(),
             view_matrix: Matrix4x4::new(),
@@ -87,6 +88,7 @@ impl PreviewCamera {
             theta,
             phi,
             radius,
+            fov_deg,
             up: 1.0,
             uniforms,
             uniform_buffer,
@@ -94,6 +96,11 @@ impl PreviewCamera {
             uniform_bind_group,
             orthographic: None,
         }
+    }
+
+    /// Returns the FOV in degrees.
+    pub fn fov_deg(&self) -> f32 {
+        self.fov_deg
     }
 
     /// Returns the uniform bind group.
@@ -161,7 +168,7 @@ impl PreviewCamera {
             self.uniforms.inverse_model_matrix = self.uniforms.model_matrix.inverse();
         } else {
             self.uniforms.projection_matrix =
-                Matrix4x4::perspective_fov(65.0, width / height, 0.1, far_clip);
+                Matrix4x4::perspective_fov(self.fov_deg, width / height, 0.1, far_clip);
             self.uniforms.view_matrix = Matrix4x4::look_at(
                 self.camera_position(),
                 self.uniforms.target,
@@ -285,5 +292,11 @@ impl PreviewCamera {
             self.radius * self.phi.cos(),
             self.radius * self.phi.sin() * self.theta.cos(),
         )
+    }
+
+    /// Focuses on the point position with distance
+    pub fn focus_on(&mut self, position: Vector3, distance: f32) {
+        self.uniforms.target = position;
+        self.radius = distance;
     }
 }

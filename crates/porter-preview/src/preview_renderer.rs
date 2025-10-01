@@ -253,6 +253,7 @@ impl PreviewRenderer {
             0.5 * std::f32::consts::PI,
             0.45 * std::f32::consts::PI,
             100.0,
+            65.0,
         );
 
         let (grid_size, grid_render_buffer, grid_render_pipeline) =
@@ -340,6 +341,27 @@ impl PreviewRenderer {
         Ok(())
     }
 
+    pub fn focus_on_model(&mut self, model: &Model) {
+        let aabb = model.bounding_box();
+
+        let mut center = ((aabb.min + aabb.max) / 2.0).swizzle::<0, 2, 1>();
+        center.z *= -1.0;
+
+        let extents = (aabb.max - aabb.min) / 2.0;
+        let radius = extents.length();
+
+        let aspect = self.width / self.height;
+
+        let fov_rad = self.camera.fov_deg().to_radians();
+
+        let vertical = radius / (fov_rad / 2.0).tan();
+        let horizontal = radius / ((fov_rad * aspect) / 2.0).tan();
+
+        let distance = vertical.max(horizontal);
+
+        self.camera.focus_on(center, distance);
+    }
+
     /// Sets the model asset to preview.
     pub fn set_preview_model(
         &mut self,
@@ -347,6 +369,7 @@ impl PreviewRenderer {
         model: Model,
         materials: Vec<Option<Image>>,
         srgb: bool,
+        focus: bool,
     ) -> Result<(), PreviewError> {
         let render_model = RenderModel::from_model(
             self.instance,
@@ -368,6 +391,10 @@ impl PreviewRenderer {
 
         self.camera.set_orthographic(None);
         self.camera.set_model_matrix(model_matrix);
+
+        if focus {
+            self.focus_on_model(&model);
+        }
 
         self.render = Some(RenderType::Model(render_model));
         self.render_name = Some(name);

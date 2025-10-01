@@ -676,7 +676,7 @@ impl Preview {
                 if let Err(e) = self
                     .viewport_state
                     .renderer_mut()
-                    .set_preview_model(name, model, images, srgb)
+                    .set_preview_model(name, model, images, srgb, false)
                 {
                     if matches!(e, PreviewError::Unsupported) {
                         self.unsupported = true;
