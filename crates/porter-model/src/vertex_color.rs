@@ -2,7 +2,7 @@ use porter_math::PackedU8Vector4;
 
 /// Represents the color of a vertex.
 #[repr(C)]
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Default)]
 pub struct VertexColor {
     /// The red channel in (0..=255).
     pub r: u8,

@@ -16,69 +16,45 @@ macro_rules! write_face_vertex {
         }
 
         let vertex = $mesh.vertices.vertex($face as usize);
+
         let normal = vertex.normal();
 
-        if $mesh.vertices.colors() > 0 && $mesh.vertices.uv_layers() > 0 {
-            let color = vertex.color(0);
-
-            write!(
-                $xmodel,
-                "NORMAL {:.6} {:.6} {:.6}\nCOLOR {:.6} {:.6} {:.6} {:.6}\nUV {}",
-                normal.x,
-                normal.y,
-                normal.z,
-                (color.r as f32) / 255.0,
-                (color.g as f32) / 255.0,
-                (color.b as f32) / 255.0,
-                (color.a as f32) / 255.0,
-                $mesh.vertices.uv_layers()
-            )?;
-
-            for i in 0..$mesh.vertices.uv_layers() {
-                let uv = vertex.uv(i);
-
-                writeln!($xmodel, " {:.6} {:.6}", uv.x, uv.y)?;
-            }
-
-            writeln!($xmodel)?;
-        } else if $mesh.vertices.colors() > 0 {
-            let color = vertex.color(0);
-
-            writeln!(
-                $xmodel,
-                "NORMAL {:.6} {:.6} {:.6}\nCOLOR {:.6} {:.6} {:.6} {:.6}",
-                normal.x,
-                normal.y,
-                normal.z,
-                (color.r as f32) / 255.0,
-                (color.g as f32) / 255.0,
-                (color.b as f32) / 255.0,
-                (color.a as f32) / 255.0,
-            )?;
-        } else if $mesh.vertices.uv_layers() > 0 {
-            write!(
-                $xmodel,
-                "NORMAL {:.6} {:.6} {:.6}\nUV {}",
-                normal.x,
-                normal.y,
-                normal.z,
-                $mesh.vertices.uv_layers()
-            )?;
-
-            for i in 0..$mesh.vertices.uv_layers() {
-                let uv = vertex.uv(i);
-
-                writeln!($xmodel, " {:.6} {:.6}", uv.x, uv.y)?;
-            }
-
-            writeln!($xmodel)?;
+        let color = if $mesh.vertices.colors() > 0 {
+            vertex.color(0)
         } else {
-            writeln!(
-                $xmodel,
-                "NORMAL {:.6} {:.6} {:.6}",
-                normal.x, normal.y, normal.z
-            )?;
+            Default::default()
+        };
+
+        let uv_layers = $mesh.vertices.uv_layers();
+
+        write!(
+            $xmodel,
+            concat!(
+                "NORMAL {:.6} {:.6} {:.6}\n",
+                "COLOR {:.6} {:.6} {:.6} {:.6}\n",
+                "UV {}"
+            ),
+            normal.x,
+            normal.y,
+            normal.z,
+            (color.r as f32) / 255.0,
+            (color.g as f32) / 255.0,
+            (color.b as f32) / 255.0,
+            (color.a as f32) / 255.0,
+            uv_layers.max(1)
+        )?;
+
+        for i in 0..uv_layers.max(1) {
+            let uv = if i < uv_layers {
+                vertex.uv(i)
+            } else {
+                Default::default()
+            };
+
+            write!($xmodel, " {:.6} {:.6}", uv.x, uv.y)?;
         }
+
+        writeln!($xmodel)?;
     };
 }
 
@@ -105,7 +81,7 @@ pub fn to_xmodel_export<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), Mo
             bone.parent,
             bone.name
                 .as_ref()
-                .unwrap_or(&format!("porter_bone_{bone_index}"))
+                .unwrap_or(&format!("porter_bone_{}", bone_index))
         )?;
     }
 
@@ -141,9 +117,9 @@ pub fn to_xmodel_export<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), Mo
     let vertex_count = model.vertex_count();
 
     if vertex_count > u16::MAX as usize {
-        writeln!(xmodel, "NUMVERTS32 {vertex_count}")?;
+        writeln!(xmodel, "NUMVERTS32 {}", vertex_count)?;
     } else {
-        writeln!(xmodel, "NUMVERTS {vertex_count}")?;
+        writeln!(xmodel, "NUMVERTS {}", vertex_count)?;
     }
 
     let mut vertex_index: usize = 0;
@@ -172,7 +148,7 @@ pub fn to_xmodel_export<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), Mo
             writeln!(xmodel, "BONES {}", weights.len())?;
 
             for (bone, value) in weights {
-                writeln!(xmodel, "BONE {bone} {value:.6}")?;
+                writeln!(xmodel, "BONE {} {:.6}", bone, value)?;
             }
 
             vertex_index += 1;
@@ -184,7 +160,7 @@ pub fn to_xmodel_export<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), Mo
     let mut vertex_index: usize = 0;
     let mut needs_default_material = false;
 
-    writeln!(xmodel, "NUMFACES {face_count}")?;
+    writeln!(xmodel, "NUMFACES {}", face_count)?;
 
     for (mesh_index, mesh) in model.meshes.iter().enumerate() {
         for face in &mesh.faces {
@@ -197,9 +173,9 @@ pub fn to_xmodel_export<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), Mo
             };
 
             if mesh_index > u8::MAX as usize {
-                writeln!(xmodel, "TRI16 {mesh_index} {material_index} 0 0")?;
+                writeln!(xmodel, "TRI16 {} {} 0 0", mesh_index, material_index)?;
             } else {
-                writeln!(xmodel, "TRI {mesh_index} {material_index} 0 0")?;
+                writeln!(xmodel, "TRI {} {} 0 0", mesh_index, material_index)?;
             }
 
             write_face_vertex!(xmodel, mesh, vertex_count, vertex_index, face.i3);
@@ -213,7 +189,7 @@ pub fn to_xmodel_export<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), Mo
     writeln!(xmodel, "NUMOBJECTS {}", model.meshes.len())?;
 
     for i in 0..model.meshes.len() {
-        writeln!(xmodel, "OBJECT {i} \"PorterMesh_{i}\"")?;
+        writeln!(xmodel, "OBJECT {} \"PorterMesh_{}\"", i, i)?;
     }
 
     if needs_default_material {
