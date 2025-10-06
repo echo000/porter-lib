@@ -10,6 +10,8 @@ pub trait HashExt {
     fn hash_murmura64(&self) -> u64;
     /// Creates a fnv1(a) 64bit hash for this data.
     fn hash_fnv1a64(&self) -> u64;
+    /// Creates a fnv1(a) 64bit hash for this data.
+    fn hash_fnv1a64_seed(&self, seed: u64) -> u64;
 }
 
 impl HashExt for &[u8] {
@@ -23,6 +25,10 @@ impl HashExt for &[u8] {
 
     fn hash_fnv1a64(&self) -> u64 {
         hashes::fnv1a64::hash(self, None)
+    }
+
+    fn hash_fnv1a64_seed(&self, seed: u64) -> u64 {
+        hashes::fnv1a64::hash(self, Some(seed))
     }
 }
 
@@ -38,6 +44,9 @@ impl HashExt for &str {
     fn hash_fnv1a64(&self) -> u64 {
         self.as_bytes().hash_fnv1a64()
     }
+    fn hash_fnv1a64_seed(&self, seed: u64) -> u64 {
+        self.as_bytes().hash_fnv1a64_seed(seed)
+    }
 }
 
 impl HashExt for String {
@@ -51,5 +60,8 @@ impl HashExt for String {
 
     fn hash_fnv1a64(&self) -> u64 {
         self.as_bytes().hash_fnv1a64()
+    }
+    fn hash_fnv1a64_seed(&self, seed: u64) -> u64 {
+        self.as_bytes().hash_fnv1a64_seed(seed)
     }
 }

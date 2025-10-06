@@ -13,8 +13,8 @@ use bitflags::bitflags;
 use porter_animation::AnimationFileType;
 use porter_audio::AudioFileType;
 use porter_model::ModelFileType;
-use porter_preview::PreviewControlScheme;
 use porter_texture::ImageFileType;
+use porter_viewport::PreviewControlScheme;
 
 #[derive(Debug, Decode, Encode, Clone, Copy)]
 struct LoadSettings(u32);

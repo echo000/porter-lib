@@ -1,6 +1,5 @@
 // #![deny(unsafe_code)] // TODO: Disable it temporarily :(
 
-mod audio_player;
 mod error;
 mod render_image;
 mod render_material;
@@ -13,7 +12,6 @@ mod viewport_camera;
 mod viewport_key_state;
 mod viewport_renderer;
 
-pub use audio_player::*;
 pub use error::*;
 pub use viewport_key_state::*;
 pub use viewport_renderer::*;

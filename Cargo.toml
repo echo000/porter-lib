@@ -13,7 +13,7 @@ members = [
     "crates/porter-fbx",
     "crates/porter-build",
     "crates/porter-gpu",
-    "crates/porter-preview",
+    "crates/porter-viewport",
     "crates/porter-app",
     "crates/porter-world",
     "crates/porter-http",

@@ -38,7 +38,7 @@ pub struct ViewportCamera {
 
 impl ViewportCamera {
     /// Constructs a new viewport camera instance.
-    pub fn new(instance: &GPUInstance, theta: f32, phi: f32, radius: f32) -> Self {
+    pub fn new(instance: &GPUInstance, theta: f32, phi: f32, radius: f32, fov_deg: f32) -> Self {
         let uniforms = ViewportCameraUniform {
             target: Vector3::zero(),
             view_matrix: Matrix4x4::new(),

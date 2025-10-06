@@ -11,8 +11,8 @@ use iced::Task;
 use directories::ProjectDirs;
 
 use porter_model::ModelFileType;
-use porter_preview::PreviewControlScheme;
 use porter_texture::ImageFileType;
+use porter_viewport::PreviewControlScheme;
 
 use crate::AppState;
 use crate::MainMessage;

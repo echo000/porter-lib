@@ -22,12 +22,12 @@ use porter_texture::TextureExtensions;
 
 use crate::PreviewControlScheme;
 use crate::PreviewError;
+use crate::PreviewKeyState;
 use crate::RenderImage;
 use crate::RenderMaterial;
 use crate::RenderModel;
 use crate::RenderType;
 use crate::ViewportCamera;
-use crate::ViewportKeyState;
 
 /// Renders 'preview' versions of models, animations, images, and materials.
 pub struct ViewportRenderer {
@@ -530,7 +530,7 @@ impl ViewportRenderer {
     }
 
     /// Performs a mouse move operation.
-    pub fn mouse_move<D: Into<Vector2>>(&mut self, delta: D, key_state: ViewportKeyState) {
+    pub fn mouse_move<D: Into<Vector2>>(&mut self, delta: D, key_state: PreviewKeyState) {
         let delta = delta.into();
 
         const ROTATE_SPEED: f32 = 1.0 / 200.0;

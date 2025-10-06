@@ -29,8 +29,8 @@ use iced::Rectangle;
 use iced::Size;
 use iced::Vector;
 
-use porter_preview::PreviewControlScheme;
-use porter_viewport::ViewportKeyState;
+use porter_viewport::PreviewControlScheme;
+use porter_viewport::PreviewKeyState;
 use porter_viewport::ViewportRenderer;
 
 use crate::palette;
