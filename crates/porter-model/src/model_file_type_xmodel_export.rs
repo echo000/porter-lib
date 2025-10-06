@@ -1,7 +1,8 @@
 use std::fs::File;
-use std::io::BufWriter;
 use std::io::Write;
 use std::path::Path;
+
+use porter_utils::BufferWriteExt;
 
 use crate::Model;
 use crate::ModelError;
@@ -60,7 +61,7 @@ macro_rules! write_face_vertex {
 
 /// Writes a model in xmodel export format to the given path.
 pub fn to_xmodel_export<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), ModelError> {
-    let mut xmodel = BufWriter::new(File::create(path.as_ref().with_extension("xmodel_export"))?);
+    let mut xmodel = File::create(path.as_ref().with_extension("xmodel_export"))?.buffer_write();
 
     writeln!(
         xmodel,

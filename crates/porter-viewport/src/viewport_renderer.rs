@@ -20,17 +20,17 @@ use porter_utils::AsThisSlice;
 use porter_texture::Image;
 use porter_texture::TextureExtensions;
 
-use crate::PreviewCamera;
 use crate::PreviewControlScheme;
 use crate::PreviewError;
-use crate::PreviewKeyState;
 use crate::RenderImage;
 use crate::RenderMaterial;
 use crate::RenderModel;
 use crate::RenderType;
+use crate::ViewportCamera;
+use crate::ViewportKeyState;
 
 /// Renders 'preview' versions of models, animations, images, and materials.
-pub struct PreviewRenderer {
+pub struct ViewportRenderer {
     instance: &'static GPUInstance,
     wireframe: bool,
     show_bones: bool,
@@ -50,7 +50,7 @@ pub struct PreviewRenderer {
     grid_render_pipeline: RenderPipeline,
     render: Option<RenderType>,
     render_name: Option<String>,
-    camera: PreviewCamera,
+    camera: ViewportCamera,
     scale: u32,
 }
 
@@ -240,8 +240,8 @@ fn create_grid_render(
     (size, buffer, render_pipeline)
 }
 
-impl PreviewRenderer {
-    /// Constructs a new instance of the preview renderer.
+impl ViewportRenderer {
+    /// Constructs a new instance of the viewport renderer.
     pub fn new() -> Self {
         let instance = gpu_instance();
         let output_texture = create_output_texture(instance, MIN_SIZE, MIN_SIZE);
@@ -249,7 +249,7 @@ impl PreviewRenderer {
         let depth_texture = create_depth_texture(instance, MIN_SIZE, MIN_SIZE);
         let msaa_texture = create_msaa_texture(instance, MIN_SIZE, MIN_SIZE);
 
-        let camera = PreviewCamera::new(
+        let camera = ViewportCamera::new(
             instance,
             0.5 * std::f32::consts::PI,
             0.45 * std::f32::consts::PI,
@@ -523,8 +523,14 @@ impl PreviewRenderer {
         self.update_camera();
     }
 
+    /// Updates the far clip.
+    pub fn far_clip(&mut self, far_clip: f32) {
+        self.far_clip = far_clip;
+        self.update_camera();
+    }
+
     /// Performs a mouse move operation.
-    pub fn mouse_move<D: Into<Vector2>>(&mut self, delta: D, key_state: PreviewKeyState) {
+    pub fn mouse_move<D: Into<Vector2>>(&mut self, delta: D, key_state: ViewportKeyState) {
         let delta = delta.into();
 
         const ROTATE_SPEED: f32 = 1.0 / 200.0;
@@ -826,7 +832,7 @@ impl PreviewRenderer {
     }
 }
 
-impl Default for PreviewRenderer {
+impl Default for ViewportRenderer {
     fn default() -> Self {
         Self::new()
     }
