@@ -30,7 +30,7 @@ use iced::Size;
 use iced::Vector;
 
 use porter_viewport::PreviewControlScheme;
-use porter_viewport::PreviewKeyState;
+use porter_viewport::ViewportKeyState;
 use porter_viewport::ViewportRenderer;
 
 use crate::palette;
@@ -349,7 +349,7 @@ impl ViewportState {
             MouseMove(delta, mouse_button, keyboard_modifiers) => {
                 self.renderer.mouse_move(
                     (delta.x, delta.y),
-                    PreviewKeyState {
+                    ViewportKeyState {
                         control_scheme,
                         left: matches!(mouse_button, Some(mouse::Button::Left)),
                         right: matches!(mouse_button, Some(mouse::Button::Right)),

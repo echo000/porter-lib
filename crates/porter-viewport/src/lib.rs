@@ -1,4 +1,4 @@
-// #![deny(unsafe_code)] // TODO: Disable it temporarily :(
+#![deny(unsafe_code)]
 
 mod error;
 mod render_image;

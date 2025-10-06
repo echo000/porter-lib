@@ -10,7 +10,7 @@ pub enum PreviewControlScheme {
 }
 
 /// The current key state of the mouse.
-pub struct PreviewKeyState {
+pub struct ViewportKeyState {
     pub control_scheme: PreviewControlScheme,
     pub left: bool,
     pub right: bool,
