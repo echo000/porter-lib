@@ -13,4 +13,3 @@ porter-texture = { path = "../porter-texture" }
 wgpu.workspace = true
 porter-audio = { path = "../porter-audio" }
 bincode = { version = "2.0.0-rc.3", default-features = false, features = ["std", "derive"] }
-rodio = "0.20.1"
