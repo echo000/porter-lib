@@ -409,12 +409,12 @@ impl Settings {
         self.preview_overlay = value;
     }
 
-    /// Whether or not to automatically scale models and animations.
+    /// whether or not to automatically scale models and animations.
     pub fn auto_scale(&self) -> bool {
         self.auto_scale
     }
 
-    /// Sets whether or not to automatically scale models and animations.
+    /// sets whether or not to automatically scale models and animations.
     pub fn set_auto_scale(&mut self, value: bool) {
         self.auto_scale = value;
     }
