@@ -1,8 +1,8 @@
-use bincode::Decode;
-use bincode::Encode;
+use serde::Deserialize;
+use serde::Serialize;
 
 /// Control scheme for preview viewport.
-#[derive(Debug, Decode, Encode, Clone, Copy)]
+#[derive(Debug, Deserialize, Serialize, Clone, Copy)]
 pub enum PreviewControlScheme {
     Simple,
     Maya,

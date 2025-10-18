@@ -15,5 +15,5 @@ porter-utils = { path = "../porter-utils" }
 
 claxon.workspace = true
 flacenc.workspace = true
-bincode.workspace = true
+serde.workspace = true
 lewton = { workspace = true, optional = true }

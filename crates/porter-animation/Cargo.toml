@@ -9,4 +9,4 @@ porter-utils = { path = "../porter-utils" }
 porter-cast = { path = "../porter-cast" }
 
 static_assertions.workspace = true
-bincode.workspace = true
+serde.workspace = true

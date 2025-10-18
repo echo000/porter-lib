@@ -2,8 +2,10 @@ use std::path::Path;
 use std::path::PathBuf;
 use std::sync::OnceLock;
 
-use bincode::Decode;
-use bincode::Encode;
+use serde::Deserialize;
+use serde::Serialize;
+
+use serde_json::json;
 
 use directories::ProjectDirs;
 use directories::UserDirs;
@@ -16,16 +18,16 @@ use porter_model::ModelFileType;
 use porter_texture::ImageFileType;
 use porter_viewport::PreviewControlScheme;
 
-#[derive(Debug, Decode, Encode, Clone, Copy)]
+#[derive(Debug, Deserialize, Serialize, Clone, Copy)]
 struct LoadSettings(u32);
 
-#[derive(Debug, Decode, Encode, Clone, Copy)]
+#[derive(Debug, Deserialize, Serialize, Clone, Copy)]
 struct ModelSettings(u32);
 
-#[derive(Debug, Decode, Encode, Clone, Copy)]
+#[derive(Debug, Deserialize, Serialize, Clone, Copy)]
 struct AnimSettings(u32);
 
-#[derive(Debug, Decode, Encode, Clone, Copy)]
+#[derive(Debug, Deserialize, Serialize, Clone, Copy)]
 struct AudioSettings(u32);
 
 bitflags! {
@@ -68,7 +70,7 @@ bitflags! {
 }
 
 /// Options for processing normal maps through the converter.
-#[derive(Debug, Decode, Encode, Clone, Copy)]
+#[derive(Debug, Deserialize, Serialize, Clone, Copy)]
 pub enum ImageNormalMapProcessing {
     None,
     OpenGl,
@@ -76,7 +78,7 @@ pub enum ImageNormalMapProcessing {
 }
 
 /// Global application settings.
-#[derive(Debug, Decode, Encode, Clone)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Settings {
     version: u32,
     load_settings: LoadSettings,
@@ -106,14 +108,10 @@ impl Settings {
             project_directory
                 .config_dir()
                 .join(name.into().to_lowercase())
-                .with_extension("dat"),
+                .with_extension("json"),
         )
         .map_or(Default::default(), |buffer| {
-            let config = bincode::config::standard();
-
-            bincode::decode_from_slice(&buffer, config)
-                .unwrap_or_default()
-                .0
+            serde_json::from_slice::<Self>(&buffer).unwrap_or_default()
         })
     }
 
@@ -123,9 +121,9 @@ impl Settings {
             return;
         };
 
-        let config = bincode::config::standard();
+        let json = json!(self);
 
-        let Ok(result) = bincode::encode_to_vec(self, config) else {
+        let Ok(result) = serde_json::to_vec_pretty(&json) else {
             return;
         };
 
@@ -137,7 +135,7 @@ impl Settings {
             project_directory
                 .config_dir()
                 .join(name.into().to_lowercase())
-                .with_extension("dat"),
+                .with_extension("json"),
             result,
         );
 

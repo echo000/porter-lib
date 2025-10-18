@@ -13,7 +13,9 @@ porter-audio = { path = "../porter-audio" }
 porter-model = { path = "../porter-model" }
 porter-threads = { path = "../porter-threads" }
 
-bincode.workspace = true
+serde_json = { version = "1.0", features = ["preserve_order"] }
+
+serde.workspace = true
 bitflags.workspace = true
 directories.workspace = true
 iced.workspace = true

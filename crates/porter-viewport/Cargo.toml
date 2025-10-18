@@ -11,5 +11,4 @@ porter-math = { path = "../porter-math" }
 porter-texture = { path = "../porter-texture" }
 
 wgpu.workspace = true
-porter-audio = { path = "../porter-audio" }
-bincode = { version = "2.0.0-rc.3", default-features = false, features = ["std", "derive"] }
+serde.workspace = true

@@ -11,4 +11,4 @@ porter-math = { path = "../porter-math" }
 wgpu.workspace = true
 png.workspace = true
 tiff.workspace = true
-bincode.workspace = true
+serde.workspace = true

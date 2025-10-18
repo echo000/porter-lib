@@ -10,4 +10,4 @@ porter-cast = { path = "../porter-cast" }
 porter-fbx = { path = "../porter-fbx" }
 
 static_assertions.workspace = true
-bincode.workspace = true
+serde.workspace = true
