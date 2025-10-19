@@ -123,11 +123,8 @@ impl Source for FlacSource<'_> {
 }
 
 /// Picks the proper format required to save the input format to a flac file type.
-pub const fn pick_format(format: AudioFormat) -> AudioFormat {
-    match format {
-        AudioFormat::FloatPcm => AudioFormat::IntegerPcm,
-        _ => AudioFormat::IntegerPcm,
-    }
+pub const fn pick_format(_: AudioFormat) -> AudioFormat {
+    AudioFormat::IntegerPcm
 }
 
 /// Writes an audio stream to a flac file to the output stream.
@@ -172,7 +169,7 @@ pub fn from_flac<I: Read + Seek>(input: &mut I) -> Result<Audio, AudioError> {
     let sample_count = stream_info.samples.unwrap_or_default();
     let sample_count_bytes = sample_count * stream_info.channels as u64 * (bits_per_sample / 8);
 
-    data.try_reserve_exact(sample_count_bytes as usize)?;
+    data.try_reserve_exact(sample_count_bytes as _)?;
 
     let mut data = Cursor::new(data);
 
