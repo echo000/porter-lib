@@ -164,7 +164,7 @@ pub fn initialize_console<T: AsRef<str>, D: AsRef<str>>(title: T, desc: D) {
 
     console!(header = "Info", <hr>);
     console!(header = "Info", "{}", title.as_ref());
-    console!(header = "Info", { color = Color::White, "Author: "} , { color = Color::Pink, "DTZxPorter" }, { color = Color::White, " (https://dtzxporter.com)" });
+    console!(header = "Info", { color = Color::White, "Author: "} , { color = Color::Pink, "echo000" }, { color = Color::White, " (https://github.com/echo000)" });
     console!(header = "Info", "Desc: {}", desc.as_ref());
     console!(header = "Info", <hr>);
 }
