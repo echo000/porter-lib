@@ -49,7 +49,7 @@ pub fn to_maya<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), ModelError>
                 "setAttr \".rp\" -type \"double3\" 0.000000 0.000000 0.000000 ;\nsetAttr \".sp\" -type \"double3\" 0.000000 0.000000 0.000000 ;\n",
                 "createNode mesh -n \"MeshShape_{}\" -p \"PorterMesh_{:02x}_{}\";\n",
                 "setAttr -k off \".v\";\nsetAttr \".vir\" yes;\nsetAttr \".vif\" yes;\n",
-                "setAttr -s {} \".uvst\";",
+                "setAttr -s {} \".uvst\";"
             ),
             hash,
             mesh_index,
@@ -70,7 +70,7 @@ pub fn to_maya<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), ModelError>
                     maya,
                     concat!(
                         "setAttr \".uvst[{}].uvsn\" -type \"string\" \"map{}\";\n",
-                        "setAttr -s 1 \".uvst[{}].uvsp[0]\" -type \"float2\"",
+                        "setAttr -s 1 \".uvst[{}].uvsp[0]\" -type \"float2\""
                     ),
                     i,
                     i + 1,
@@ -81,7 +81,7 @@ pub fn to_maya<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), ModelError>
                     maya,
                     concat!(
                         "setAttr \".uvst[{}].uvsn\" -type \"string\" \"map{}\";\n",
-                        "setAttr -s {} \".uvst[{}].uvsp[0:{}]\" -type \"float2\"",
+                        "setAttr -s {} \".uvst[{}].uvsp[0:{}]\" -type \"float2\""
                     ),
                     i,
                     i + 1,
@@ -100,59 +100,83 @@ pub fn to_maya<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), ModelError>
             writeln!(maya, ";")?;
         }
 
-        write!(
+        let color_layer_count = mesh.vertices.colors();
+        let expected_color_layer_count = color_layer_count.max(1);
+
+        writeln!(
             maya,
             concat!(
-                "setAttr \".cuvs\" -type \"string\" \"map1\";\nsetAttr \".dcol\" yes;\nsetAttr \".dcc\" -type \"string\" \"Ambient+Diffuse\";\nsetAttr \".ccls\" -type \"string\" \"colorSet1\";\nsetAttr \".clst[0].clsn\" -type \"string\" \"colorSet1\";\n",
-                "setAttr -s {} \".clst[0].clsp\";\n",
-                "setAttr \".clst[0].clsp[0:{}]\"",
+                "setAttr \".cuvs\" -type \"string\" \"map1\";\n",
+                "setAttr \".dcol\" no;\n",
+                "setAttr \".dcc\" -type \"string\" \"Ambient+Diffuse\";\n",
+                "setAttr \".ccls\" -type \"string\" \"color1\";\n",
+                "setAttr -s {} \".clst\";"
             ),
-            (mesh.faces.len() * 3),
-            (mesh.faces.len() * 3) - 1
+            expected_color_layer_count
         )?;
 
-        for face in &mesh.faces {
-            let vertex1 = if mesh.vertices.colors() > 0 {
-                mesh.vertices.vertex(face.i3 as usize).color(0)
-            } else {
-                VertexColor::new(255, 255, 255, 255)
-            };
-
-            let vertex2 = if mesh.vertices.colors() > 0 {
-                mesh.vertices.vertex(face.i2 as usize).color(0)
-            } else {
-                VertexColor::new(255, 255, 255, 255)
-            };
-
-            let vertex3 = if mesh.vertices.colors() > 0 {
-                mesh.vertices.vertex(face.i1 as usize).color(0)
-            } else {
-                VertexColor::new(255, 255, 255, 255)
-            };
-
+        for i in 0..expected_color_layer_count {
             write!(
                 maya,
-                " {} {} {} {} {} {} {} {} {} {} {} {}",
-                vertex1.r as f32 / 255.0,
-                vertex1.g as f32 / 255.0,
-                vertex1.b as f32 / 255.0,
-                vertex1.a as f32 / 255.0,
-                vertex2.r as f32 / 255.0,
-                vertex2.g as f32 / 255.0,
-                vertex2.b as f32 / 255.0,
-                vertex2.a as f32 / 255.0,
-                vertex3.r as f32 / 255.0,
-                vertex3.g as f32 / 255.0,
-                vertex3.b as f32 / 255.0,
-                vertex3.a as f32 / 255.0
+                concat!(
+                    "setAttr \".clst[{}].clsn\" -type \"string\" \"color{}\";\n",
+                    "setAttr -s {} \".clst[{}].clsp\";\n",
+                    "setAttr \".clst[{}].clsp[0:{}]\""
+                ),
+                i,
+                i + 1,
+                mesh.faces.len() * 3,
+                i,
+                i,
+                (mesh.faces.len() * 3) - 1
             )?;
+
+            for face in &mesh.faces {
+                let vertex1 = if color_layer_count > 0 {
+                    mesh.vertices.vertex(face.i3 as usize).color(i)
+                } else {
+                    VertexColor::new(255, 255, 255, 255)
+                };
+
+                let vertex2 = if color_layer_count > 0 {
+                    mesh.vertices.vertex(face.i2 as usize).color(i)
+                } else {
+                    VertexColor::new(255, 255, 255, 255)
+                };
+
+                let vertex3 = if color_layer_count > 0 {
+                    mesh.vertices.vertex(face.i1 as usize).color(i)
+                } else {
+                    VertexColor::new(255, 255, 255, 255)
+                };
+
+                write!(
+                    maya,
+                    " {} {} {} {} {} {} {} {} {} {} {} {}",
+                    vertex1.r as f32 / 255.0,
+                    vertex1.g as f32 / 255.0,
+                    vertex1.b as f32 / 255.0,
+                    vertex1.a as f32 / 255.0,
+                    vertex2.r as f32 / 255.0,
+                    vertex2.g as f32 / 255.0,
+                    vertex2.b as f32 / 255.0,
+                    vertex2.a as f32 / 255.0,
+                    vertex3.r as f32 / 255.0,
+                    vertex3.g as f32 / 255.0,
+                    vertex3.b as f32 / 255.0,
+                    vertex3.a as f32 / 255.0
+                )?;
+            }
+
+            write!(maya, ";\n")?;
         }
 
         writeln!(
             maya,
             concat!(
-                ";\n",
-                "setAttr \".covm[0]\"  0 1 1;\nsetAttr \".cdvm[0]\"  0 1 1;\nsetAttr -s {} \".vt\";"
+                "setAttr \".covm[0]\"  0 1 1;\n",
+                "setAttr \".cdvm[0]\"  0 1 1;\n",
+                "setAttr -s {} \".vt\";"
             ),
             mesh.vertices.len()
         )?;
@@ -254,13 +278,16 @@ pub fn to_maya<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), ModelError>
                 })?;
             }
 
-            write!(
-                maya,
-                " mc 0 3 {} {} {}",
-                face_indices,
-                face_indices + 1,
-                face_indices + 2
-            )?;
+            for i in 0..expected_color_layer_count {
+                write!(
+                    maya,
+                    " mc {} 3 {} {} {}",
+                    i,
+                    face_indices,
+                    face_indices + 1,
+                    face_indices + 2
+                )?;
+            }
         }
 
         writeln!(
