@@ -64,15 +64,16 @@ pub fn to_maya<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), ModelError>
             continue;
         }
 
-        for i in 1..mesh.vertices.uv_layers() + 1 {
+        for i in 0..mesh.vertices.uv_layers() {
             if mesh.vertices.len() == 1 {
                 writeln!(
                     maya,
                     concat!(
                         "setAttr \".uvst[{}].uvsn\" -type \"string\" \"map{}\";\n",
-                        "setAttr -s 1 \".uvst[0].uvsp[0]\" -type \"float2\"",
+                        "setAttr -s 1 \".uvst[{}].uvsp[0]\" -type \"float2\"",
                     ),
-                    i - 1,
+                    i,
+                    i + 1,
                     i
                 )?;
             } else {
@@ -80,17 +81,18 @@ pub fn to_maya<P: AsRef<Path>>(path: P, model: &Model) -> Result<(), ModelError>
                     maya,
                     concat!(
                         "setAttr \".uvst[{}].uvsn\" -type \"string\" \"map{}\";\n",
-                        "setAttr -s {} \".uvst[0].uvsp[0:{}]\" -type \"float2\"",
+                        "setAttr -s {} \".uvst[{}].uvsp[0:{}]\" -type \"float2\"",
                     ),
-                    i - 1,
                     i,
+                    i + 1,
                     mesh.vertices.len(),
+                    i,
                     mesh.vertices.len() - 1
                 )?;
             }
 
             for v in 0..mesh.vertices.len() {
-                let uv = mesh.vertices.vertex(v).uv(i - 1);
+                let uv = mesh.vertices.vertex(v).uv(i);
 
                 write!(maya, " {} {}", uv.x, 1.0 - uv.y)?;
             }
