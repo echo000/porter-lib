@@ -7,6 +7,10 @@ pub enum ImageConvertOptions {
     ReconstructZ,
     /// Always reconstruct the Z channel and invert the Y channel of the image.
     ReconstructZInvertY,
+    /// Always reconstruct the Z channel of the image (for bumpmaps).
+    BumpmapReconstructZ,
+    /// Always reconstruct the Z channel and invert the Y channel of the image (for bumpmaps).
+    BumpmapReconstructZInvertY,
     /// Only reconstruct the Z channel of the image when the format is Bc5Unorm.
     AutoReconstructZ,
     /// Only reconstruct the Z channel and invert the Y channel of the image when the format is Bc5Unorm.

@@ -87,7 +87,8 @@ impl GPUConverter {
 
         match self.options {
             ImageConvertOptions::ReconstructZInvertY
-            | ImageConvertOptions::AutoReconstructZInvertY => invert_y = 1,
+            | ImageConvertOptions::AutoReconstructZInvertY
+            | ImageConvertOptions::BumpmapReconstructZInvertY => invert_y = 1,
             ImageConvertOptions::UniformScaleBias(s, b) => {
                 scale = s;
                 bias = b;
@@ -217,6 +218,9 @@ impl GPUConverter {
             ImageConvertOptions::None => "fs_main",
             ImageConvertOptions::ReconstructZ | ImageConvertOptions::ReconstructZInvertY => {
                 "fs_rz_main"
+            }
+            ImageConvertOptions::BumpmapReconstructZ | ImageConvertOptions::BumpmapReconstructZInvertY => {
+                "fs_rz_bm_main"
             }
             ImageConvertOptions::AutoReconstructZ
             | ImageConvertOptions::AutoReconstructZInvertY => {

@@ -88,6 +88,39 @@ fn fs_rz_main(in: VertexOutput) -> @location(0) vec4<f32> {
 }
 
 @fragment
+fn fs_rz_bm_main(in: VertexOutput) -> @location(0) vec4<f32> {
+    var sample: vec2<f32> = textureSample(t_input, s_input, in.tex_coord).ag;
+
+    var nX: f32 = sample.x * 4.08 - 2.08;
+    var nY: f32 = sample.y * 4.064516 - 2.064516;
+    if options.input_snorm == 1u {
+        nX = (sample.x * 0.5 + 0.5) * 4.08 - 2.08;
+        nY = (sample.y * 0.5 + 0.5) * 4.064516 - 2.064516;
+    }
+
+    var normalized = normalize(vec3<f32>(nX, nY, 1.0));
+
+    if options.output_unorm == 1u {
+        let z_packed = select(0.0, sqrt(normalized.z) * 0.5 + 0.5, normalized.z > 0.0);
+        normalized = vec3<f32>(
+            normalized.x * 0.5 + 0.5,
+            normalized.y * 0.5 + 0.5,
+            z_packed,
+        );
+    }
+
+    if options.invert_y == 1u {
+        if options.output_unorm == 1u {
+            return vec4<f32>(normalized.x, 1.0 - normalized.y, normalized.z, 1.0);
+        } else {
+            return vec4<f32>(normalized.x, -normalized.y, normalized.z, 1.0);
+        }
+    } else {
+        return vec4<f32>(normalized, 1.0);
+    }
+}
+
+@fragment
 fn fs_sb_main(in: VertexOutput) -> @location(0) vec4<f32> {
     var sample: vec4<f32> = textureSample(t_input, s_input, in.tex_coord).xyzw;
 
