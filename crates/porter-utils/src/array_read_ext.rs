@@ -9,7 +9,7 @@ use crate::VecExt;
 /// A trait that reads arrays from any `Read` type.
 pub trait ArrayReadExt: Read {
     /// Reads an array of `R` with the given length.
-    fn read_array<R>(&mut self, length: usize) -> Result<Vec<R>, io::Error>
+    fn read_vec<R>(&mut self, length: usize) -> Result<Vec<R>, io::Error>
     where
         R: Copy + 'static;
 
@@ -21,7 +21,7 @@ impl<T> ArrayReadExt for T
 where
     T: Read,
 {
-    fn read_array<R>(&mut self, length: usize) -> Result<Vec<R>, io::Error>
+    fn read_vec<R>(&mut self, length: usize) -> Result<Vec<R>, io::Error>
     where
         R: Copy + 'static,
     {
