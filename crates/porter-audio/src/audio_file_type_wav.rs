@@ -97,6 +97,24 @@ pub fn to_wav<O: Write + Seek>(audio: &Audio, output: &mut O) -> Result<(), Audi
 
             output.write_struct(header)?;
         }
+        AudioFormat::ImaAdpcm => {
+            let extra_size = extra.len() as u16;
+            let block_align = audio.block_align().ok_or(AudioError::ConversionError)? as u16;
+
+            let header = WavefmtHeaderExtra {
+                size: size_of::<WavefmtHeaderExtra>() as u32 - size_of::<u32>() as u32
+                    + extra_size as u32,
+                format: 0x11,
+                channel_count: channels as u16,
+                sample_rate,
+                byte_rate,
+                block_align,
+                bits_per_sample: bits_per_sample as u16,
+                extra_size,
+            };
+
+            output.write_struct(header)?;
+        }
         AudioFormat::FloatPcm => {
             let header = WavefmtHeader {
                 size: size_of::<WavefmtHeader>() as u32 - size_of::<u32>() as u32,
@@ -224,6 +242,7 @@ pub fn from_wav<I: Read + Seek>(input: &mut I) -> Result<Audio, AudioError> {
         0x1 => AudioFormat::IntegerPcm,
         0x2 => AudioFormat::MsAdpcm,
         0x3 => AudioFormat::FloatPcm,
+        0x11 => AudioFormat::ImaAdpcm,
         0xFFFF => {
             header.block_align = 1;
             header.bits_per_sample = 8;

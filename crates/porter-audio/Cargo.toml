@@ -5,6 +5,7 @@ edition = "2024"
 
 [features]
 ms-adpcm = []
+ima-adpcm = []
 wwise-vorbis = ["dep:lewton"]
 raw-flac = []
 ogg = ["dep:lewton", "lewton/ogg"]

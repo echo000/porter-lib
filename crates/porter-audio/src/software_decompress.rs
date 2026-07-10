@@ -11,6 +11,12 @@ pub fn software_decompress_audio(audio: &mut Audio) -> Result<(), AudioError> {
             #[cfg(not(feature = "ms-adpcm"))]
             return Err(AudioError::ConversionFeatureDisabled);
         }
+        AudioFormat::ImaAdpcm => {
+            #[cfg(feature = "ima-adpcm")]
+            crate::decompress_ima_adpcm(audio)?;
+            #[cfg(not(feature = "ima-adpcm"))]
+            return Err(AudioError::ConversionFeatureDisabled);
+        }
         AudioFormat::WwiseVorbis => {
             #[cfg(feature = "wwise-vorbis")]
             crate::decompress_wwise_vorbis(audio)?;

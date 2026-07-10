@@ -23,6 +23,8 @@ pub(crate) use software_coerce::*;
 pub(crate) use software_compress::*;
 pub(crate) use software_decompress::*;
 
+#[cfg(feature = "ima-adpcm")]
+mod software_decompress_ima_adpcm;
 #[cfg(feature = "ms-adpcm")]
 mod software_decompress_ms_adpcm;
 #[cfg(feature = "raw-flac")]
@@ -30,6 +32,8 @@ mod software_decompress_raw_flac;
 #[cfg(feature = "wwise-vorbis")]
 mod software_decompress_wwise_vorbis;
 
+#[cfg(feature = "ima-adpcm")]
+pub(crate) use software_decompress_ima_adpcm::*;
 #[cfg(feature = "ms-adpcm")]
 pub(crate) use software_decompress_ms_adpcm::*;
 #[cfg(feature = "raw-flac")]
