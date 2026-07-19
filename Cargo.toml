@@ -67,6 +67,7 @@ tiff = { version = "0.10", default-features = false, features = ["deflate"] }
 
 # Audio
 claxon = { version = "0.4", default-features = false }
+xma2-rs = { git = "https://github.com/echo000/xma2-rs" }
 flacenc = { version = "0.5", default-features = false }
 lewton = { version = "0.10", default-features = false }
 

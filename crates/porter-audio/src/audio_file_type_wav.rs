@@ -44,7 +44,10 @@ const fn compute_byte_rate(bits_per_sample: u32, channels: u32, sample_rate: u32
 /// Picks the proper format required to save the input format to a wav file type.
 pub const fn pick_format(format: AudioFormat) -> AudioFormat {
     match format {
-        AudioFormat::RawFlac => AudioFormat::IntegerPcm,
+        AudioFormat::RawFlac
+        | AudioFormat::Xma2
+        | AudioFormat::WmaV1
+        | AudioFormat::WmaV2 => AudioFormat::IntegerPcm,
         _ => format,
     }
 }
@@ -180,6 +183,7 @@ pub fn from_wav<I: Read + Seek>(input: &mut I) -> Result<Audio, AudioError> {
 
     let mut data = Vec::new();
     let mut extra = Vec::new();
+    let mut dpds: Vec<u32> = Vec::new();
     let mut header: WavefmtHeader = Default::default();
 
     loop {
@@ -187,8 +191,8 @@ pub fn from_wav<I: Read + Seek>(input: &mut I) -> Result<Audio, AudioError> {
         let size: u32 = input.read_struct()?;
 
         match block {
-            // 'WAVE'
-            0x45564157 => {
+            // 'WAVE' / 'XWMA' (xWMA shares the RIFF layout with a different form tag)
+            0x45564157 | 0x414D5758 => {
                 // 'fmt '
                 if size != 0x20746D66 {
                     return Err(AudioError::ContainerInvalid(AudioFileType::Wav));
@@ -204,6 +208,18 @@ pub fn from_wav<I: Read + Seek>(input: &mut I) -> Result<Audio, AudioError> {
 
                     input.read_exact(&mut extra)?;
                 }
+            }
+            // 'dpds' (xWMA decoded packet cumulative byte counts)
+            0x73647064 => {
+                let count = size as usize / size_of::<u32>();
+
+                dpds.try_reserve_exact(count)?;
+
+                for _ in 0..count {
+                    dpds.push(input.read_struct()?);
+                }
+
+                input.skip((size as usize % size_of::<u32>()) as u32)?;
             }
             // 'data'
             0x61746164 => {
@@ -243,6 +259,9 @@ pub fn from_wav<I: Read + Seek>(input: &mut I) -> Result<Audio, AudioError> {
         0x2 => AudioFormat::MsAdpcm,
         0x3 => AudioFormat::FloatPcm,
         0x11 => AudioFormat::ImaAdpcm,
+        0x160 => AudioFormat::WmaV1,
+        0x161 => AudioFormat::WmaV2,
+        0x166 => AudioFormat::Xma2,
         0xFFFF => {
             header.block_align = 1;
             header.bits_per_sample = 8;
@@ -269,6 +288,16 @@ pub fn from_wav<I: Read + Seek>(input: &mut I) -> Result<Audio, AudioError> {
 
     audio.set_data(data);
     audio.set_extra(extra);
+    audio.set_byte_rate(header.byte_rate);
+
+    // The xWMA dpds table declares the exact decoded length in bytes.
+    if let Some(&last) = dpds.last() {
+        let bytes_per_frame = (header.channel_count as u32 * header.bits_per_sample as u32) / 8;
+
+        if bytes_per_frame > 0 {
+            audio.set_frame_count(last as u64 / bytes_per_frame as u64);
+        }
+    }
 
     Ok(audio)
 }

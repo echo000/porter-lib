@@ -30,6 +30,8 @@ pub struct Audio {
     format: AudioFormat,
     extra: Vec<u8>,
     data: Vec<u8>,
+    byte_rate: Option<u32>,
+    frame_count: Option<u64>,
 }
 
 impl Audio {
@@ -60,6 +62,8 @@ impl Audio {
             format,
             extra: Vec::new(),
             data: Vec::new(),
+            byte_rate: None,
+            frame_count: None,
         })
     }
 
@@ -95,6 +99,8 @@ impl Audio {
             format,
             extra: Vec::new(),
             data: Vec::new(),
+            byte_rate: None,
+            frame_count: None,
         })
     }
 
@@ -227,6 +233,28 @@ impl Audio {
     /// Sets a new extra data buffer.
     pub fn set_extra(&mut self, extra: Vec<u8>) {
         self.extra = extra;
+    }
+
+    /// Returns the average bytes per second from the source container, when
+    /// known. Compressed formats like WMA derive bitstream layout from it.
+    pub fn byte_rate(&self) -> Option<u32> {
+        self.byte_rate
+    }
+
+    /// Sets the average bytes per second of the source stream.
+    pub fn set_byte_rate(&mut self, byte_rate: u32) {
+        self.byte_rate = Some(byte_rate);
+    }
+
+    /// Returns the exact decoded frame count declared by the source
+    /// container (e.g. an xWMA `dpds` table), when known.
+    pub fn frame_count(&self) -> Option<u64> {
+        self.frame_count
+    }
+
+    /// Sets the exact decoded frame count declared by the source container.
+    pub fn set_frame_count(&mut self, frame_count: u64) {
+        self.frame_count = Some(frame_count);
     }
 
     /// Returns the data buffer.

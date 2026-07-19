@@ -29,6 +29,12 @@ pub fn software_decompress_audio(audio: &mut Audio) -> Result<(), AudioError> {
             #[cfg(not(feature = "raw-flac"))]
             return Err(AudioError::ConversionFeatureDisabled);
         }
+        AudioFormat::Xma2 | AudioFormat::WmaV1 | AudioFormat::WmaV2 => {
+            #[cfg(feature = "xma2-wma")]
+            crate::decompress_xma2_wma(audio)?;
+            #[cfg(not(feature = "xma2-wma"))]
+            return Err(AudioError::ConversionFeatureDisabled);
+        }
         _ => return Err(AudioError::ConversionError),
     }
 

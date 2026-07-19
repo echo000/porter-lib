@@ -15,6 +15,12 @@ pub enum AudioFormat {
     RawFlac,
     /// IMA ADPCM: https://wiki.multimedia.cx/index.php/IMA_ADPCM
     ImaAdpcm,
+    /// Xbox 360 XMA2: https://wiki.multimedia.cx/index.php/Microsoft_Xbox_Media_Audio
+    Xma2,
+    /// Windows Media Audio 1: https://wiki.multimedia.cx/index.php/Windows_Media_Audio
+    WmaV1,
+    /// Windows Media Audio 2 (as found in xWMA): https://wiki.multimedia.cx/index.php/Windows_Media_Audio
+    WmaV2,
 }
 
 impl AudioFormat {
@@ -22,7 +28,13 @@ impl AudioFormat {
     pub const fn is_compressed(&self) -> bool {
         matches!(
             self,
-            Self::MsAdpcm | Self::WwiseVorbis | Self::RawFlac | Self::ImaAdpcm
+            Self::MsAdpcm
+                | Self::WwiseVorbis
+                | Self::RawFlac
+                | Self::ImaAdpcm
+                | Self::Xma2
+                | Self::WmaV1
+                | Self::WmaV2
         )
     }
 

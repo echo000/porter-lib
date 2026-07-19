@@ -7,6 +7,7 @@ edition = "2024"
 ms-adpcm = []
 ima-adpcm = []
 wwise-vorbis = ["dep:lewton"]
+xma2-wma = ["dep:xma2-rs"]
 raw-flac = []
 ogg = ["dep:lewton", "lewton/ogg"]
 debug = []
@@ -18,3 +19,4 @@ claxon.workspace = true
 flacenc.workspace = true
 serde.workspace = true
 lewton = { workspace = true, optional = true }
+xma2-rs = { workspace = true, optional = true }

@@ -31,6 +31,8 @@ mod software_decompress_ms_adpcm;
 mod software_decompress_raw_flac;
 #[cfg(feature = "wwise-vorbis")]
 mod software_decompress_wwise_vorbis;
+#[cfg(feature = "xma2-wma")]
+mod software_decompress_xma2_wma;
 
 #[cfg(feature = "ima-adpcm")]
 pub(crate) use software_decompress_ima_adpcm::*;
@@ -40,3 +42,5 @@ pub(crate) use software_decompress_ms_adpcm::*;
 pub(crate) use software_decompress_raw_flac::*;
 #[cfg(feature = "wwise-vorbis")]
 pub(crate) use software_decompress_wwise_vorbis::*;
+#[cfg(feature = "xma2-wma")]
+pub(crate) use software_decompress_xma2_wma::*;

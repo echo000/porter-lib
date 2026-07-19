@@ -21,6 +21,8 @@ pub enum AudioError {
     FlacDecodeError(claxon::Error),
     TryFromSliceError(std::array::TryFromSliceError),
     TryReserveError(std::collections::TryReserveError),
+    #[cfg(feature = "xma2-wma")]
+    Xma2WmaDecodeError(xma2_rs::DecodeError),
     #[cfg(feature = "wwise-vorbis")]
     WwiseHeaderReadError(lewton::header::HeaderReadError),
     #[cfg(feature = "wwise-vorbis")]
@@ -70,6 +72,13 @@ impl From<std::array::TryFromSliceError> for AudioError {
 impl From<std::collections::TryReserveError> for AudioError {
     fn from(value: std::collections::TryReserveError) -> Self {
         Self::TryReserveError(value)
+    }
+}
+
+#[cfg(feature = "xma2-wma")]
+impl From<xma2_rs::DecodeError> for AudioError {
+    fn from(value: xma2_rs::DecodeError) -> Self {
+        Self::Xma2WmaDecodeError(value)
     }
 }
 
